@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net.mstoegerer.TaskNest.Api", "net.mstoegerer.TaskNest.Api\net.mstoegerer.TaskNest.Api.csproj", "{FF6FB957-86EE-40B6-ACD3-E1593201F984}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF6FB957-86EE-40B6-ACD3-E1593201F984}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF6FB957-86EE-40B6-ACD3-E1593201F984}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF6FB957-86EE-40B6-ACD3-E1593201F984}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF6FB957-86EE-40B6-ACD3-E1593201F984}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
