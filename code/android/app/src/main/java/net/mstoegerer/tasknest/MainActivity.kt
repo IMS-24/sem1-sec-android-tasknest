@@ -2,17 +2,20 @@ package net.mstoegerer.tasknest
 
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import net.mstoegerer.tasknest.repository.LocationRepository
 import net.mstoegerer.tasknest.ui.map.MapsFragment
 import net.mstoegerer.tasknest.ui.team.TeamFragment
 import net.mstoegerer.tasknest.ui.today.TodayFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
 
     private lateinit var locationRepository: LocationRepository
     private lateinit var bottomNav: BottomNavigationView
@@ -25,12 +28,28 @@ class MainActivity : AppCompatActivity() {
 //        }
     }
 
+    override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
+        when (renderer) {
+            MapsInitializer.Renderer.LATEST -> Log.d(
+                "MapsDemo",
+                "The latest version of the renderer is used."
+            )
+
+            MapsInitializer.Renderer.LEGACY -> Log.d(
+                "MapsDemo",
+                "The legacy version of the renderer is used."
+            )
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MapsInitializer.initialize(applicationContext, MapsInitializer.Renderer.LATEST, this)
         setContentView(R.layout.activity_main)
         bottomNav = findViewById(R.id.bottomNav)
         locationRepository = LocationRepository(this)
         //locationTextView = findViewById(R.id.location_text_view)
+
         if (ContextCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION
