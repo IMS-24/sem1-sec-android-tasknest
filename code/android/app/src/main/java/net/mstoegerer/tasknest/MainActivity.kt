@@ -2,30 +2,35 @@ package net.mstoegerer.tasknest
 
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import net.mstoegerer.tasknest.repository.LocationRepository
+import net.mstoegerer.tasknest.ui.map.MapsFragment
+import net.mstoegerer.tasknest.ui.team.TeamFragment
+import net.mstoegerer.tasknest.ui.today.TodayFragment
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var locationRepository: LocationRepository
+    private lateinit var bottomNav: BottomNavigationView
 
-    private lateinit var locationTextView: TextView
+    //private lateinit var locationTextView: TextView
     private fun fetchLocation() {
         LocationRepository.getCurrentLocationAndStoreInDb(locationRepository)
-        LocationRepository.getLastLocation(locationRepository) { location ->
-            locationTextView.text = location?.toString() ?: "No location found"
-        }
+//        LocationRepository.getLastLocation(locationRepository) { location ->
+//            locationTextView.text = location?.toString() ?: "No location found"
+//        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        bottomNav = findViewById(R.id.bottomNav)
         locationRepository = LocationRepository(this)
-        locationTextView = findViewById(R.id.location_text_view)
+        //locationTextView = findViewById(R.id.location_text_view)
         if (ContextCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -39,6 +44,23 @@ class MainActivity : AppCompatActivity() {
         } else {
             fetchLocation()
         }
+        replaceFragment(TodayFragment())
+
+        bottomNav.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.navigation_today -> replaceFragment(TodayFragment())
+                R.id.navigation_map -> replaceFragment(MapsFragment())
+                R.id.navigation_team -> replaceFragment(TeamFragment())
+            }
+            true
+        }
+
+
+    }
+
+    private fun replaceFragment(fragment: Fragment) {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.frameLayout, fragment).commit()
     }
 
     //Static constant for location permission request code
