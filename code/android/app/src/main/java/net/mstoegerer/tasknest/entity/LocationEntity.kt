@@ -8,7 +8,8 @@ data class LocationEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val latitude: Double,
     val longitude: Double,
-    val timestamp: Long
+    val timestamp: Long,
+    var persisted: Boolean = false
 
 
 ) {

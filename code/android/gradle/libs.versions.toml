@@ -20,6 +20,7 @@ legacySupportV4 = "1.0.0"
 fragmentKtx = "1.5.6"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 playServicesMaps = "19.0.0"
+cronetApi = "119.6045.31"
 secretsGradlePlugin = "2.0.1"
 
 [libraries]
@@ -41,6 +42,7 @@ play-services-location-v2101 = { module = "com.google.android.gms:play-services-
 androidx-legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+cronet-api = { group = "org.chromium.net", name = "cronet-api", version.ref = "cronetApi" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 
 [plugins]

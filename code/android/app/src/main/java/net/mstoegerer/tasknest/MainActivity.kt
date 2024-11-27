@@ -1,5 +1,6 @@
 package net.mstoegerer.tasknest
 
+import LocationService
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -9,24 +10,20 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapsSdkInitializedCallback
+import androidx.work.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import net.mstoegerer.tasknest.repository.LocationRepository
 import net.mstoegerer.tasknest.ui.map.MapsFragment
 import net.mstoegerer.tasknest.ui.team.TeamFragment
 import net.mstoegerer.tasknest.ui.today.TodayFragment
+import net.mstoegerer.tasknest.worker.LocationCoroutineWorker
+import net.mstoegerer.tasknest.worker.LocationPersistenceWorker
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
 
-    private lateinit var locationRepository: LocationRepository
+    private lateinit var locationService: LocationService
     private lateinit var bottomNav: BottomNavigationView
-
-    //private lateinit var locationTextView: TextView
-    private fun fetchLocation() {
-        LocationRepository.getCurrentLocationAndStoreInDb(locationRepository)
-//        LocationRepository.getLastLocation(locationRepository) { location ->
-//            locationTextView.text = location?.toString() ?: "No location found"
-//        }
-    }
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
     override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
         when (renderer) {
@@ -46,9 +43,7 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         super.onCreate(savedInstanceState)
         MapsInitializer.initialize(applicationContext, MapsInitializer.Renderer.LATEST, this)
         setContentView(R.layout.activity_main)
-        bottomNav = findViewById(R.id.bottomNav)
-        locationRepository = LocationRepository(this)
-        //locationTextView = findViewById(R.id.location_text_view)
+        initializeComponents()
 
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -61,8 +56,14 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
                 LOCATION_PERMISSION_REQUEST_CODE
             )
         } else {
-            fetchLocation()
+            scheduleLocationWorkers()
         }
+    }
+
+    private fun initializeComponents() {
+        bottomNav = findViewById(R.id.bottomNav)
+        locationService = LocationService(this)
+
         replaceFragment(TodayFragment())
 
         bottomNav.setOnItemSelectedListener {
@@ -78,13 +79,31 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
     }
 
     private fun replaceFragment(fragment: Fragment) {
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.frameLayout, fragment).commit()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.frameLayout, fragment)
+            .commit()
     }
 
-    //Static constant for location permission request code
-    companion object {
-        const val LOCATION_PERMISSION_REQUEST_CODE = 1
+    private fun scheduleLocationWorkers() {
+        val locationCoroutineWorkRequest = OneTimeWorkRequestBuilder<LocationCoroutineWorker>()
+            .setInitialDelay(10, TimeUnit.SECONDS)
+            .build()
+
+        val locationPersistenceWorkRequest = OneTimeWorkRequestBuilder<LocationPersistenceWorker>()
+            .setInitialDelay(1, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "LocationCoroutineWorker",
+            ExistingWorkPolicy.REPLACE,
+            locationCoroutineWorkRequest
+        )
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "LocationPersistenceWorker",
+            ExistingWorkPolicy.REPLACE,
+            locationPersistenceWorkRequest
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -96,7 +115,7 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE &&
             grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
-            fetchLocation()
+            scheduleLocationWorkers()
         }
     }
 }

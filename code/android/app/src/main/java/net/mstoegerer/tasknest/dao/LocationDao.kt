@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import net.mstoegerer.tasknest.entity.LocationEntity
 
 @Dao
@@ -14,6 +15,20 @@ interface LocationDao {
     @Query("SELECT * FROM locations ORDER BY timestamp DESC")
     suspend fun getAllLocations(): List<LocationEntity>
 
+    @Query("SELECT * FROM locations WHERE persisted = 0 ORDER BY timestamp DESC")
+    suspend fun getLocallyPersistedLocations(): List<LocationEntity>
+
     @Query("SELECT * FROM locations ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLastLocation(): LocationEntity
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateLocations(location: List<LocationEntity>)
+
+    @Transaction
+    suspend fun getAndMarkPersisted(): List<LocationEntity> {
+        val locations = getLocallyPersistedLocations()
+        locations.forEach { it.persisted = true }
+        updateLocations(locations)
+        return locations
+    }
 }
