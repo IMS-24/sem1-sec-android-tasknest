@@ -16,6 +16,7 @@ import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import net.mstoegerer.tasknest.service.TodoService
 import net.mstoegerer.tasknest.ui.map.MapsFragment
 import net.mstoegerer.tasknest.ui.team.TeamFragment
 import net.mstoegerer.tasknest.ui.today.TodayFragment
@@ -51,6 +52,16 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         val userName = intent.getStringExtra("USER_NAME")
         val userEmail = intent.getStringExtra("USER_EMAIL")
         val userId = intent.getStringExtra("USER_ID")
+
+        //Load todo list
+        val todoService = TodoService(this)
+        todoService.getTodos {
+            if (it != null) {
+                Log.d("MainActivity", "Received todos: $it")
+            } else {
+                Log.e("MainActivity", "Failed to get todos")
+            }
+        }
 
         if (ContextCompat.checkSelfPermission(
                 this,

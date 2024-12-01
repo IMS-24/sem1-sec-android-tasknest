@@ -4,6 +4,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface ILocationBackendService {
-    @POST("api/v1/locations")
+    @POST("api/locations")
     fun postLocations(@Body locations: List<LocationEntity>): Call<Void>
 }
