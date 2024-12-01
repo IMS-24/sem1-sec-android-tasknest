@@ -1,6 +1,6 @@
 package net.mstoegerer.tasknest.worker
 
-import LocationService
+import LocationDatabaseService
 import android.content.Context
 import androidx.work.*
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +14,8 @@ class LocationCoroutineWorker(
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            val locationService = LocationService(applicationContext)
-            locationService.fetchAndStoreCurrentLocation(locationService)
+            val locationDatabaseService = LocationDatabaseService(applicationContext)
+            locationDatabaseService.fetchAndStoreCurrentLocation(locationDatabaseService)
 
             // Schedule the next work
             val nextWorkRequest = OneTimeWorkRequestBuilder<LocationCoroutineWorker>()

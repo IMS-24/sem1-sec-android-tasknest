@@ -16,6 +16,9 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        manifestPlaceholders.clear()
+        manifestPlaceholders["auth0Domain"] = "@string/com_auth0_domain"
+        manifestPlaceholders["auth0Scheme"] = "@string/com_auth0_scheme"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -67,7 +70,6 @@ android {
 
 }
 dependencies {
-    //implementation(libs.play.services.location.v2101)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -79,48 +81,24 @@ dependencies {
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.play.services.maps)
-    implementation("com.google.code.gson:gson:2.11.0")
-    implementation(libs.cronet.api)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.work.rxjava2)
+    implementation(libs.androidx.work.gcm)
+    implementation(libs.androidx.annotation)
+    implementation(libs.androidx.activity)
+    androidTestImplementation(libs.androidx.work.testing)
+    implementation(libs.androidx.work.multiprocess)
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    implementation(libs.auth0)
 
 
-    val work_version = "2.9.1"
+    kapt("androidx.room:room-compiler:2.6.1")
 
-        // (Java only)
-        implementation("androidx.work:work-runtime:$work_version")
-
-        // Kotlin + coroutines
-        implementation("androidx.work:work-runtime-ktx:$work_version")
-
-        // optional - RxJava2 support
-        implementation("androidx.work:work-rxjava2:$work_version")
-
-        // optional - GCMNetworkManager support
-        implementation("androidx.work:work-gcm:$work_version")
-
-        // optional - Test helpers
-        androidTestImplementation("androidx.work:work-testing:$work_version")
-
-        // optional - Multiprocess support
-        implementation("androidx.work:work-multiprocess:$work_version")
-
-
-    val room_version = "2.6.1"
-
-    implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
-
-    // To use Kotlin annotation processing tool (kapt)
-    kapt("androidx.room:room-compiler:$room_version")
-    // To use Kotlin Symbol Processing (KSP)
-    //ksp("androidx.room:room-compiler:$room_version")
-
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation("androidx.room:room-ktx:$room_version")
-
-
-    val cronet_version = "18.1.0"
-    implementation("com.google.android.gms:play-services-cronet:$cronet_version")
-
+    implementation(libs.androidx.room.ktx)
     implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

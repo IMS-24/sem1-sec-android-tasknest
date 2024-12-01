@@ -16,7 +16,7 @@ interface LocationDao {
     suspend fun getAllLocations(): List<LocationEntity>
 
     @Query("SELECT * FROM locations WHERE persisted = 0 ORDER BY timestamp DESC")
-    suspend fun getLocallyPersistedLocations(): List<LocationEntity>
+    suspend fun getOfflinePersistedLocations(): List<LocationEntity>
 
     @Query("SELECT * FROM locations ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLastLocation(): LocationEntity
@@ -26,7 +26,7 @@ interface LocationDao {
 
     @Transaction
     suspend fun getAndMarkPersisted(): List<LocationEntity> {
-        val locations = getLocallyPersistedLocations()
+        val locations = getOfflinePersistedLocations()
         locations.forEach { it.persisted = true }
         updateLocations(locations)
         return locations
