@@ -30,8 +30,6 @@ public class EvilService(ApplicationDbContext applicationDbContext)
                 Key = y.Key,
                 Value = y.Value
             }).ToList(),
-            Password = x.Password,
-            PhoneNumber = x.PhoneNumber,
             UserId = x.UserId
         });
         return dtos.ToList();
@@ -43,8 +41,6 @@ public class EvilService(ApplicationDbContext applicationDbContext)
         {
             //MetaData =createUserMetaDataDto.MetaData.ToEntity(),
             CreatedUtc = createUserMetaDataDto.CreatedUtc,
-            PhoneNumber = createUserMetaDataDto.PhoneNumber,
-            Password = createUserMetaDataDto.Password,
             UserId = createUserMetaDataDto.UserId,
             Location = createUserMetaDataDto.Location == null
                 ? null

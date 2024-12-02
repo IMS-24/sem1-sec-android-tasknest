@@ -5,7 +5,7 @@ using net.mstoegerer.TaskNest.Api.Application.Services;
 using net.mstoegerer.TaskNest.Api.Infrastructure;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Extensions;
 
-const bool seed = true;
+const bool seed = false;
 if (seed)
 {
     var seedGenerator = new SeedDataGenerator();

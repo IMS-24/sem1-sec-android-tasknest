@@ -8,6 +8,7 @@ public class Todo
     public string Title { get; set; } = null!;
     public string Content { get; set; } = null!;
     public DateTime CreatedUtc { get; set; } = DateTime.Now;
+    public DateTime? DeletedUtc { get; set; }
     public DateTime UpdatedUtc { get; set; }
     public Point? Location { get; set; } = null!;
     public DateTime? DueUtc { get; set; }

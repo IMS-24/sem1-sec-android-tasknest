@@ -27,15 +27,10 @@ public class TodoController(TodoService todoService) : ApiBaseController
         return Ok(res);
     }
 
-    [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> Patch([FromBody] TodoDto todoDto)
-    {
-        return Ok();
-    }
-
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete([FromBody] TodoDto todoDto)
+    public async Task<IActionResult> Delete(Guid id)
     {
+        await todoService.DeleteTodoAsync(id);
         return Ok();
     }
 }

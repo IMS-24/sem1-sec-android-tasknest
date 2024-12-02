@@ -33,6 +33,5 @@ public class UserMetaDataEntityTypeConfiguration : IEntityTypeConfiguration<User
             .WithOne(kv => kv.UserMetaData)
             .HasForeignKey(kv => kv.UserMetaDataId)
             ;
-        builder.Property(x => x.Password).IsRequired(false);
     }
 }

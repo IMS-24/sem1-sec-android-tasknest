@@ -596,8 +596,6 @@ public class SeedDataGenerator
                 {
                     CreatedUtc = currentTimeStamp,
                     Id = Guid.NewGuid(),
-                    Password = user.Password,
-                    PhoneNumber = phoneNumber,
                     Location = location,
                     UserId = user.Id
                 };
@@ -608,14 +606,12 @@ public class SeedDataGenerator
 
         var sqlBuilder = new StringBuilder();
         sqlBuilder.Append(
-            "INSERT INTO user_metadata (id,location, password, phone_number, user_id, created_utc) VALUES\n");
+            "INSERT INTO user_metadata (id,location, phone_number, user_id, created_utc) VALUES\n");
 
         foreach (var userMetaData in _userMetaDataList)
         {
             sqlBuilder.Append($"('{userMetaData.Id}', ");
             sqlBuilder = AppendLocation(sqlBuilder, userMetaData.Location);
-            sqlBuilder.Append($"'{userMetaData.Password}', ");
-            sqlBuilder.Append($"'{userMetaData.PhoneNumber}', ");
             sqlBuilder.Append($"'{userMetaData.UserId}', ");
             sqlBuilder.Append($"'{userMetaData.CreatedUtc:yyyy-MM-dd HH:mm:ssZ}'");
             sqlBuilder.Append("),\n");

@@ -8,6 +8,15 @@ namespace net.mstoegerer.TaskNest.Api.Application.Services;
 
 public class TodoService(ApplicationDbContext dbContext)
 {
+    public async Task DeleteTodoAsync(Guid id)
+    {
+        var todo = dbContext.Todos.FirstOrDefault(x => x.Id == id);
+        if (todo == null) throw new Exception("Todo not found");
+
+        todo.DeletedUtc = DateTime.UtcNow;
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<TodoDto> CreateTodoAsync(TodoDto todoDto)
     {
         var todo = new Todo
@@ -40,7 +49,7 @@ public class TodoService(ApplicationDbContext dbContext)
     {
         var todo = await dbContext.Todos
             .Include(x => x.Attachments)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id && x.DeletedUtc == null);
         if (todo == null) throw new Exception("Todo not found");
         return new TodoDto
         {
@@ -68,10 +77,11 @@ public class TodoService(ApplicationDbContext dbContext)
     public async Task<IEnumerable<TodoDto>> GetTodosAsync()
     {
         var todos = dbContext.Todos
-            .Include(x => x.Attachments);
+            .Include(x => x.Attachments)
+            .Where(x => x.DeletedUtc == null);
 
         if (todos == null) throw new Exception("Todos not found");
-        return todos.Select(todo => new TodoDto
+        return await todos.Select(todo => new TodoDto
         {
             Id = todo.Id,
             Title = todo.Title,
@@ -92,6 +102,6 @@ public class TodoService(ApplicationDbContext dbContext)
                     Name = x.Name
                 })
                 .ToList()
-        });
+        }).ToListAsync();
     }
 }

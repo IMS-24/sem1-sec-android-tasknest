@@ -217,8 +217,6 @@ public class MetadataGenerator
                 var userMetaData = new UserMetaData
                 {
                     Id = Guid.NewGuid(),
-                    Password = user.Password,
-                    PhoneNumber = $"+43{_random.Next(100000000, 999999999)}", // Austrian-style random number
                     UserId = user.Id,
                     CreatedUtc = _startDate,
                     Location = new Point(15.4395, 47.0707) { SRID = 4326 }, // Starting location around Graz
@@ -294,39 +292,31 @@ public class MetadataGenerator
         var metaDataListSb = new StringBuilder();
         userMetaDataListSb.Append("var userMetadataList = new List<UserMetaData>\n{\n");
         metaDataListSb.Append("var metadataList = new List<MetaData>\n{\n");
-        userMetaSqlSb.Append("INSERT INTO user_metadata(id,password, phone_number, user_id, created_utc, location)\n" +
+        userMetaSqlSb.Append("INSERT INTO user_metadata(id, user_id, created_utc, location)\n" +
                              "VALUES \n");
         metaSqlSb.Append("INSERT INTO meta_data (id, user_meta_data_id, key,value)\n" +
                          "VALUES \n");
         foreach (var userMeta in _userMetaDataList)
         {
-            /*userMetaSqlSb.Append(
-                $"(\"{userMeta.Id}\", \"{userMeta.Password}\", \"{userMeta.PhoneNumber}\", {userMeta.UserId}, {userMeta.CreatedUtc}, {userMeta.Location}),\n");
-                */
             userMetaSqlSb.Append($"('{userMeta.Id}', ");
-            userMetaSqlSb.Append($"'{userMeta.Password}', ");
-            userMetaSqlSb.Append($"'{userMeta.PhoneNumber}', ");
             userMetaSqlSb.Append($"'{userMeta.UserId}', ");
-            userMetaSqlSb.Append($"'{userMeta.CreatedUtc:yyyy-MM-dd HH:mm:ssZ}', "); // UTC timestamp with timezone format
+            userMetaSqlSb.Append(
+                $"'{userMeta.CreatedUtc:yyyy-MM-dd HH:mm:ssZ}', "); // UTC timestamp with timezone format
 
             // Check if Location is set and add it to SQL
             if (userMeta.Location != null)
-            {
-                userMetaSqlSb.Append($"ST_SetSRID(ST_MakePoint({userMeta.Location.X}, {userMeta.Location.Y}), {userMeta.Location.SRID})");
-            }
+                userMetaSqlSb.Append(
+                    $"ST_SetSRID(ST_MakePoint({userMeta.Location.X}, {userMeta.Location.Y}), {userMeta.Location.SRID})");
             else
-            {
                 userMetaSqlSb.Append("NULL"); // Handle null location
-            }
 
             userMetaSqlSb.Append("),\n");
-            
+
             userMetaDataListSb.Append("\tnew ()\n    {\n");
             userMetaDataListSb.Append($"\t\tId = Guid.Parse(\"{userMeta.Id}\"),\n");
             userMetaDataListSb.Append($"\t\tUserId = Guid.Parse(\"{userMeta.UserId}\"),\n");
             userMetaDataListSb.Append(
                 $"\t\tCreatedUtc = DateTime.Parse(\"{userMeta.CreatedUtc}\", null, DateTimeStyles.AssumeUniversal).ToUniversalTime(),\n");
-            userMetaDataListSb.Append($"\t\tPhoneNumber = \"{userMeta.PhoneNumber}\",\n");
             if (userMeta.Location != null)
                 userMetaDataListSb.Append(
                     $"\t\tLocation = new Point({userMeta.Location.X.ToString(CultureInfo.InvariantCulture)}, {userMeta.Location.Y}) {{ SRID = 4326 }},\n");
