@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.2"
+auth0 = "2.11.0"
 kotlin = "1.9.24"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -13,6 +14,7 @@ lifecycleViewmodelKtx = "2.8.6"
 navigationFragmentKtx = "2.6.0"
 navigationUiKtx = "2.6.0"
 playServicesLocationVersion = "21.3.0"
+retrofit = "2.11.0"
 roomCommon = "2.6.1"
 roomKtx = "2.6.1"
 playServicesLocation = "21.3.0"
@@ -22,9 +24,22 @@ googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 playServicesMaps = "19.0.0"
 cronetApi = "119.6045.31"
 secretsGradlePlugin = "2.0.1"
+workRuntime = "2.9.1"
+annotation = "1.6.0"
+activity = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCommon" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommon" }
+androidx-work-gcm = { module = "androidx.work:work-gcm", version.ref = "workRuntime" }
+androidx-work-multiprocess = { module = "androidx.work:work-multiprocess", version.ref = "workRuntime" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntime" }
+androidx-work-rxjava2 = { module = "androidx.work:work-rxjava2", version.ref = "workRuntime" }
+androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntime" }
+auth0 = { module = "com.auth0.android:auth0", version.ref = "auth0" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -43,7 +58,10 @@ androidx-legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 cronet-api = { group = "org.chromium.net", name = "cronet-api", version.ref = "cronetApi" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

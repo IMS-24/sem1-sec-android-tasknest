@@ -1,17 +1,22 @@
 package net.mstoegerer.tasknest
 
-import LocationService
+import LocationDatabaseService
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapsSdkInitializedCallback
-import androidx.work.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
+import net.mstoegerer.tasknest.service.TodoService
 import net.mstoegerer.tasknest.ui.map.MapsFragment
 import net.mstoegerer.tasknest.ui.team.TeamFragment
 import net.mstoegerer.tasknest.ui.today.TodayFragment
@@ -20,10 +25,8 @@ import net.mstoegerer.tasknest.worker.LocationPersistenceWorker
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
-
-    private lateinit var locationService: LocationService
+    private lateinit var locationDatabaseService: LocationDatabaseService
     private lateinit var bottomNav: BottomNavigationView
-    private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
     override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
         when (renderer) {
@@ -39,11 +42,26 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapsInitializer.initialize(applicationContext, MapsInitializer.Renderer.LATEST, this)
         setContentView(R.layout.activity_main)
         initializeComponents()
+
+        val userName = intent.getStringExtra("USER_NAME")
+        val userEmail = intent.getStringExtra("USER_EMAIL")
+        val userId = intent.getStringExtra("USER_ID")
+
+        //Load todo list
+        val todoService = TodoService(this)
+        todoService.getTodos {
+            if (it != null) {
+                Log.d("MainActivity", "Received todos: $it")
+            } else {
+                Log.e("MainActivity", "Failed to get todos")
+            }
+        }
 
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -58,11 +76,14 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         } else {
             scheduleLocationWorkers()
         }
+
+        val rootView = findViewById<View>(android.R.id.content)
+        Snackbar.make(rootView, "Welcome $userName ($userEmail) - id: $userId", Snackbar.LENGTH_LONG).show()
     }
 
     private fun initializeComponents() {
         bottomNav = findViewById(R.id.bottomNav)
-        locationService = LocationService(this)
+        locationDatabaseService = LocationDatabaseService(this)
 
         replaceFragment(TodayFragment())
 
@@ -74,8 +95,6 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
             }
             true
         }
-
-
     }
 
     private fun replaceFragment(fragment: Fragment) {
@@ -117,5 +136,9 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         ) {
             scheduleLocationWorkers()
         }
+    }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
 }
