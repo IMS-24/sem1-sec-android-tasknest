@@ -33,4 +33,11 @@ public class TodoController(TodoService todoService) : ApiBaseController
         await todoService.DeleteTodoAsync(id);
         return Ok();
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Shared([FromBody] TodoShareDto todoShareDto)
+    {
+        await todoService.ShareTodoAsync(todoShareDto);
+        return Ok();
+    }
 }

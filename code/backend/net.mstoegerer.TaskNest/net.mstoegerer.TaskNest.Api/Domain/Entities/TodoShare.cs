@@ -9,6 +9,6 @@ public class TodoShare
     public User SharedWith { get; set; } = null!;
     public Guid SharedById { get; set; }
     public User SharedBy { get; set; } = null!;
-    public DateTime CreatedUtc { get; set; } = DateTime.Now;
-    public DateTime UpdatedUtc { get; set; }
+    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedUtc { get; set; } = DateTime.UtcNow;
 }

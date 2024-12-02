@@ -67,6 +67,8 @@ public class TodoService(ApplicationDbContext dbContext)
             Attachments = todo.Attachments
                 .Select(x => new AttachmentDto
                 {
+                    Id = x.Id,
+                    TodoId = x.TodoId,
                     Data = x.Data,
                     ContentType = x.ContentType,
                     Name = x.Name
@@ -103,5 +105,20 @@ public class TodoService(ApplicationDbContext dbContext)
                 })
                 .ToList()
         }).ToListAsync();
+    }
+
+    public async Task ShareTodoAsync(TodoShareDto todoShareDto)
+    {
+        var todo = dbContext.Todos.FirstOrDefault(x => x.Id == todoShareDto.TodoId);
+        if (todo == null) throw new Exception("Todo not found");
+        var share = new TodoShare
+        {
+            Id = Guid.NewGuid(),
+            TodoId = todoShareDto.TodoId,
+            SharedById = todoShareDto.SharedById,
+            SharedWithId = todoShareDto.SharedWithId
+        };
+        dbContext.TodoShares.Add(share);
+        await dbContext.SaveChangesAsync();
     }
 }

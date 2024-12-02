@@ -587,7 +587,6 @@ public class SeedDataGenerator
             var currentLong = _graz.X + (_random.NextDouble() - 0.5) * 0.003;
             var currentLat = _graz.Y + (_random.NextDouble() - 0.5) * 0.003;
             var currentTimeStamp = DateTime.UtcNow.AddHours(-24 * 7 * _random.Next(15, 50));
-            var phoneNumber = $"+43{_random.Next(100000000, 999999999)}";
             for (var i = 0; i < _random.Next(0, 1500); i++)
             {
                 (currentLong, currentLat) = GetRandomPointWithinRadius(currentLong, currentLat, 10);
@@ -606,7 +605,7 @@ public class SeedDataGenerator
 
         var sqlBuilder = new StringBuilder();
         sqlBuilder.Append(
-            "INSERT INTO user_metadata (id,location, phone_number, user_id, created_utc) VALUES\n");
+            "INSERT INTO user_metadata (id,location, user_id, created_utc) VALUES\n");
 
         foreach (var userMetaData in _userMetaDataList)
         {

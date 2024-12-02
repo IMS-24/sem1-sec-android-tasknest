@@ -7,10 +7,10 @@ public class Todo
     public Guid Id { get; set; }
     public string Title { get; set; } = null!;
     public string Content { get; set; } = null!;
-    public DateTime CreatedUtc { get; set; } = DateTime.Now;
+    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     public DateTime? DeletedUtc { get; set; }
-    public DateTime UpdatedUtc { get; set; }
-    public Point? Location { get; set; } = null!;
+    public DateTime UpdatedUtc { get; set; } = DateTime.UtcNow;
+    public Point? Location { get; set; }
     public DateTime? DueUtc { get; set; }
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
