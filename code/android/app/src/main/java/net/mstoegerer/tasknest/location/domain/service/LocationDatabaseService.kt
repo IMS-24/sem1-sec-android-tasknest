@@ -1,3 +1,5 @@
+package net.mstoegerer.tasknest.location.domain.service
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -7,8 +9,8 @@ import com.google.android.gms.location.LocationServices.getFusedLocationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.mstoegerer.tasknest.database.LocationDatabase
-import net.mstoegerer.tasknest.entity.LocationEntity
+import net.mstoegerer.tasknest.location.domain.LocationDatabase
+import net.mstoegerer.tasknest.location.data.LocationEntity
 
 class LocationDatabaseService(private val context: Context) {
     private val locationDao = LocationDatabase.getDatabase(context).locationDao()

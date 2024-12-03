@@ -1,4 +1,4 @@
-package net.mstoegerer.tasknest.entity
+package net.mstoegerer.tasknest.location.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

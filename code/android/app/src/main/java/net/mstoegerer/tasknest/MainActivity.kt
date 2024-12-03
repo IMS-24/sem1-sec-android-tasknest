@@ -1,6 +1,6 @@
 package net.mstoegerer.tasknest
 
-import LocationDatabaseService
+import net.mstoegerer.tasknest.location.domain.service.LocationDatabaseService
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -16,12 +16,12 @@ import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import net.mstoegerer.tasknest.service.TodoService
+import net.mstoegerer.tasknest.todo.domain.service.TodoService
 import net.mstoegerer.tasknest.ui.map.MapsFragment
 import net.mstoegerer.tasknest.ui.team.TeamFragment
 import net.mstoegerer.tasknest.ui.today.TodayFragment
-import net.mstoegerer.tasknest.worker.LocationCoroutineWorker
-import net.mstoegerer.tasknest.worker.LocationPersistenceWorker
+import net.mstoegerer.tasknest.location.domain.worker.LocationCoroutineWorker
+import net.mstoegerer.tasknest.location.domain.worker.LocationPersistenceWorker
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
@@ -58,8 +58,6 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         todoService.getTodos {
             if (it != null) {
                 Log.d("MainActivity", "Received todos: $it")
-            } else {
-                Log.e("MainActivity", "Failed to get todos")
             }
         }
 

@@ -1,11 +1,11 @@
-package net.mstoegerer.tasknest.dao
+package net.mstoegerer.tasknest.location.domain
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import net.mstoegerer.tasknest.entity.LocationEntity
+import net.mstoegerer.tasknest.location.data.LocationEntity
 
 @Dao
 interface LocationDao {

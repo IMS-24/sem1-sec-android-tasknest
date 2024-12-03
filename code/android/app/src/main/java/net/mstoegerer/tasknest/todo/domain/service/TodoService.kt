@@ -1,4 +1,4 @@
-package net.mstoegerer.tasknest.service
+package net.mstoegerer.tasknest.todo.domain.service
 
 import android.content.Context
 import android.util.Log
@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mstoegerer.tasknest.R
-import net.mstoegerer.tasknest.dto.TodoDto
+import net.mstoegerer.tasknest.todo.data.TodoDto
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -35,7 +35,7 @@ class TodoService(private val context: Context) {
                 if (response.isSuccessful) {
                     onSuccess(response.body())
                 } else {
-                    Log.e("TodoService", "API call failed: ${response.errorBody()?.string()}")
+                    Log.e("TodoService", "API call failed: ${response.raw()}")
                     onError()
                 }
             } catch (e: Exception) {

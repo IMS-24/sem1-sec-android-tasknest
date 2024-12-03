@@ -1,6 +1,6 @@
-package net.mstoegerer.tasknest.worker
+package net.mstoegerer.tasknest.location.domain.worker
 
-import LocationDatabaseService
+import net.mstoegerer.tasknest.location.domain.service.LocationDatabaseService
 import android.content.Context
 import androidx.work.*
 import kotlinx.coroutines.Dispatchers

@@ -1,10 +1,10 @@
-package net.mstoegerer.tasknest.worker
+package net.mstoegerer.tasknest.location.domain.worker
 
 import android.content.Context
 import androidx.work.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.mstoegerer.tasknest.service.LocationBackendService
+import net.mstoegerer.tasknest.location.domain.service.LocationBackendService
 import java.util.concurrent.TimeUnit
 
 class LocationPersistenceWorker(
