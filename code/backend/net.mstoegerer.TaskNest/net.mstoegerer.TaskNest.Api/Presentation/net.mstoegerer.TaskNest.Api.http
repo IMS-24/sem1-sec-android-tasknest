@@ -1,6 +1,0 @@
-@net.mstoegerer.TaskNest.Api_HostAddress = http://localhost:5241
-
-GET {{net.mstoegerer.TaskNest.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

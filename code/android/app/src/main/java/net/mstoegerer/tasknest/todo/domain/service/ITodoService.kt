@@ -1,5 +1,5 @@
-package net.mstoegerer.tasknest.service
-import net.mstoegerer.tasknest.dto.TodoDto
+package net.mstoegerer.tasknest.todo.domain.service
+import net.mstoegerer.tasknest.todo.data.TodoDto
 import retrofit2.Call
 import retrofit2.http.*
 import java.util.UUID

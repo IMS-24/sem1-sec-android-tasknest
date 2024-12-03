@@ -1,14 +1,13 @@
-package net.mstoegerer.tasknest.service
+package net.mstoegerer.tasknest.location.domain.service
 
-import ILocationBackendService
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mstoegerer.tasknest.R
-import net.mstoegerer.tasknest.database.LocationDatabase
-import net.mstoegerer.tasknest.entity.LocationEntity
+import net.mstoegerer.tasknest.location.domain.LocationDatabase
+import net.mstoegerer.tasknest.location.data.LocationEntity
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -36,7 +35,7 @@ class LocationBackendService(private val context: Context) {
                 } else {
                     Log.e(
                         "LocationService",
-                        "Failed to send locations: ${response.errorBody()?.string()}"
+                        "Failed to send locations: ${response.raw()}"
                     )
                     restorePersistedFlag(locations)
                 }

@@ -71,7 +71,9 @@ public class TodoService(ApplicationDbContext dbContext)
                     TodoId = x.TodoId,
                     Data = x.Data,
                     ContentType = x.ContentType,
-                    Name = x.Name
+                    Name = x.Name,
+                    CreatedUtc = x.CreatedUtc,
+                    UpdatedUtc = x.UpdatedUtc
                 }).ToList()
         };
     }

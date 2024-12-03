@@ -1,4 +1,4 @@
-package net.mstoegerer.tasknest.dto
+package net.mstoegerer.tasknest.todo.data
 
 import java.util.*
 
@@ -7,10 +7,10 @@ data class AttachmentDto(
     val name: String,
     val fileName: String,
     val contentType: String,
-    val data: ByteArray,
+    val data: String,
     val size: Long,
     val todoId: UUID,
     val uploadedById: UUID,
-    val createdUtc: Date,
-    val updatedUtc: Date
+ //   val createdUtc: Date,
+  //  val updatedUtc: Date
 )

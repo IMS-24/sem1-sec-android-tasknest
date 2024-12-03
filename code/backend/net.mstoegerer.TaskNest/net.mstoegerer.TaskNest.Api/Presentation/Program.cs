@@ -1,9 +1,10 @@
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.HttpLogging;
 using net.mstoegerer.TaskNest.Api.Application.Extensions;
-using net.mstoegerer.TaskNest.Api.Application.Services;
+using net.mstoegerer.TaskNest.Api.Domain.Configs;
 using net.mstoegerer.TaskNest.Api.Infrastructure;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Extensions;
+using net.mstoegerer.TaskNest.Api.Presentation.Extensions;
+using net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 
 const bool seed = false;
 if (seed)
@@ -24,41 +25,23 @@ var configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile("Presentation/appsettings.Local.json", true);
 IConfiguration configuration = configurationBuilder
     .Build();
-// Add services to the container.
-// Add JWT settings from configuration (appsettings.json or environment variables)
-var jwtSettings = configuration.GetSection("JwtSettings");
-builder.Services.AddSingleton(new JwtService(
-    jwtSettings["Key"],
-    jwtSettings["Issuer"],
-    jwtSettings["Audience"]
-));
+
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructureService(configuration);
 builder.Services.AddApplicationServices();
 
-
-// Configure JWT authentication
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"])) // Replace with your key
-        };
-    });
-
-builder.Services.AddAuthorization();
+var auth0Config = configuration.GetConfig<Auth0Config>("Auth0");
+builder.Services.AddAuth0(auth0Config);
+builder.Services.AddHttpLogging(o =>
+{
+    o.LoggingFields = HttpLoggingFields.All;
+    o.RequestHeaders.Add("Authorization");
+});
 var app = builder.Build();
+app.UseCurrentUserMiddleware();
 // Configure the HTTP request pipeline.
 // if (app.Environment.IsDevelopment())
 // {
@@ -66,12 +49,15 @@ app.UseSwagger();
 app.UseSwaggerUI();
 // }
 
-
+app.UseHttpLogging();
 //app.UseMiddleware<TokenValidationMiddleware>();
 app.UseAuthentication(); // Enables authentication
 app.UseAuthorization(); // Enables authorization
 
 app.MapControllers();
-
+app.UseCors(builder =>
+    builder.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
 
 app.Run();
