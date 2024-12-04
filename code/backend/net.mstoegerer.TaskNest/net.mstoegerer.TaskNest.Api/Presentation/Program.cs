@@ -36,8 +36,9 @@ var auth0Config = configuration.GetConfig<Auth0Config>("Auth0");
 builder.Services.AddAuth0(auth0Config);
 builder.Services.AddHttpLogging(o =>
 {
-    o.LoggingFields = HttpLoggingFields.All;
+    o.LoggingFields = HttpLoggingFields.All | HttpLoggingFields.RequestBody;
     o.RequestHeaders.Add("Authorization");
+    o.RequestHeaders.Add("X-API-Key");
 });
 builder.Services.AddApiKey(auth0Config);
 var app = builder.Build();
