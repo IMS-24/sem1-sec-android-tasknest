@@ -20,10 +20,9 @@ public class UserService(ApplicationDbContext dbContext)
     {
         await dbContext.Users.AddAsync(new User
         {
-            Id = Guid.NewGuid(),
             Name = $"{createUserDto.GivenName} {createUserDto.FamilyName}",
             Email = createUserDto.Email,
-            ExternalId = Guid.NewGuid()
+            ExternalId = createUserDto.ExternalId
         });
         await dbContext.SaveChangesAsync();
     }

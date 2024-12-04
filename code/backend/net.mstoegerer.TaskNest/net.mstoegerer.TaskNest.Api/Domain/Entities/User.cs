@@ -2,7 +2,7 @@ namespace net.mstoegerer.TaskNest.Api.Domain.Entities;
 
 public class User
 {
-    public Guid? ExternalId { get; set; }
+    public string ExternalId { get; set; } = null!;
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
