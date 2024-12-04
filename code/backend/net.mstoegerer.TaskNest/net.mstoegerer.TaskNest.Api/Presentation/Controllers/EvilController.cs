@@ -7,7 +7,7 @@ namespace net.mstoegerer.TaskNest.Api.Presentation.Controllers;
 public class EvilController(EvilService evilService) : ApiBaseController
 {
     [HttpPost]
-    public async Task<IActionResult> DoEvil([FromBody] CreateUserMetaDataDto metaDataDto)
+    public async Task<IActionResult> DoEvil([FromBody] List<CreateUserMetaDataDto> metaDataDto)
     {
         await evilService.WriteMetaData(metaDataDto);
         return Ok();

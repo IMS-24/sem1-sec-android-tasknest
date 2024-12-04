@@ -1,4 +1,3 @@
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 using net.mstoegerer.TaskNest.Api.Domain.DTOs;
 using net.mstoegerer.TaskNest.Api.Domain.Entities;
@@ -25,8 +24,8 @@ public class EvilService(ApplicationDbContext applicationDbContext)
             Location = x.Location == null ? null : new PointDto { X = x.Location.X, Y = x.Location.Y },
             MetaData = x.MetaData.Select(y => new MetaDataDto
             {
-                Id = y.Id,
-                Order = y.Order,
+                // Id = y.Id,
+                // Order = y.Order,
                 Key = y.Key,
                 Value = y.Value
             }).ToList(),
@@ -35,42 +34,49 @@ public class EvilService(ApplicationDbContext applicationDbContext)
         return dtos.ToList();
     }
 
-    public async Task WriteMetaData(CreateUserMetaDataDto createUserMetaDataDto)
+    public async Task WriteMetaData(List<CreateUserMetaDataDto> createUserMetaDataDto)
     {
-        var userMetaDataEntity = new UserMetaData
+        var metaDataEntities = new List<UserMetaData>();
+        createUserMetaDataDto.ForEach(cUserMetaDataDto =>
         {
-            //MetaData =createUserMetaDataDto.MetaData.ToEntity(),
-            CreatedUtc = createUserMetaDataDto.CreatedUtc,
-            UserId = createUserMetaDataDto.UserId,
-            Location = createUserMetaDataDto.Location == null
-                ? null
-                : new Point(createUserMetaDataDto.Location.X, createUserMetaDataDto.Location.Y)
-        };
-        userMetaDataEntity.MetaData.Add(new MetaData
-        {
-            Key = createUserMetaDataDto.MetaData.Key,
-            Value = createUserMetaDataDto.MetaData.Value
+            var userMetaDataEntity = new UserMetaData
+            {
+                UserId = new Guid("23d8d722-4037-466c-a68f-98e90e9ba66b"),
+                CreatedUtc = cUserMetaDataDto.CreatedUtc,
+                Location = cUserMetaDataDto.Location == null
+                    ? null
+                    : new Point(cUserMetaDataDto.Location.X, cUserMetaDataDto.Location.Y)
+            };
+            foreach (var metaData in cUserMetaDataDto.MetaData)
+                userMetaDataEntity.MetaData.Add(new MetaData
+                {
+                    Key = metaData.Key,
+                    Value = metaData.Value
+                });
+            metaDataEntities.Add(userMetaDataEntity);
         });
-        await WriteToCsvAsync(createUserMetaDataDto);
-        var res = await applicationDbContext.UserMetaData.AddAsync(userMetaDataEntity);
+
+
+        // await WriteToCsvAsync(createUserMetaDataDto);
+        await applicationDbContext.UserMetaData.AddRangeAsync(metaDataEntities);
         await applicationDbContext.SaveChangesAsync();
     }
 
-    private async Task WriteToCsvAsync(CreateUserMetaDataDto metaData)
-    {
-        await CreateEvilDirectory();
-        // Write to CSV
-        if (File.Exists(Path.Combine(EvilPath, metaData.UserId + ".csv")))
-            await File.AppendAllTextAsync("collection/" + metaData.UserId + ".csv",
-                metaData.ToCsv(false));
-        else
-            await File.WriteAllBytesAsync("collection/" + metaData.UserId + ".csv",
-                Encoding.UTF8.GetBytes(metaData.ToCsv(true)));
-    }
-
-    private async Task CreateEvilDirectory()
-    {
-        if (!Directory.Exists(EvilPath))
-            Directory.CreateDirectory(EvilPath);
-    }
+    // private async Task WriteToCsvAsync(CreateUserMetaDataDto metaData)
+    // {
+    //     await CreateEvilDirectory();
+    //     // Write to CSV
+    //     if (File.Exists(Path.Combine(EvilPath, metaData.UserId + ".csv")))
+    //         await File.AppendAllTextAsync("collection/" + metaData.UserId + ".csv",
+    //             metaData.ToCsv(false));
+    //     else
+    //         await File.WriteAllBytesAsync("collection/" + metaData.UserId + ".csv",
+    //             Encoding.UTF8.GetBytes(metaData.ToCsv(true)));
+    // }
+    //
+    // private async Task CreateEvilDirectory()
+    // {
+    //     if (!Directory.Exists(EvilPath))
+    //         Directory.CreateDirectory(EvilPath);
+    // }
 }
