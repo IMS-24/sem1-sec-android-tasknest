@@ -21,6 +21,7 @@ import net.mstoegerer.tasknest.location.data.LocationDto
 import net.mstoegerer.tasknest.location.data.LocationEntity
 import net.mstoegerer.tasknest.location.data.MetaData
 import net.mstoegerer.tasknest.location.domain.LocationDatabase
+import net.mstoegerer.tasknest.todo.domain.service.GsonUTCDateAdapter
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -42,7 +43,7 @@ class LocationBackendService(context: Context) {
         SecureCredentialsManager(context, apiClient, SharedPreferencesStorage(context))
 
     private var gson: Gson = GsonBuilder()
-        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        .registerTypeAdapter(Date::class.java, GsonUTCDateAdapter())
         .create()
 
     private val retrofit: Retrofit = Retrofit.Builder()
@@ -70,8 +71,7 @@ class LocationBackendService(context: Context) {
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun publishOfflinePersistedLocations() {
         val offlineLocations = locationDao.getAndMarkPersisted()
-        val locations = AuthService.fetchUserProfile(credentialsManager, apiClient).getId()
-            ?.let { mapToLocationDto(it, offlineLocations) } ?: emptyList()
+        val locations = mapToLocationDto(offlineLocations)
 
         ioScope.launch {
             try {
@@ -95,14 +95,12 @@ class LocationBackendService(context: Context) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun mapToLocationDto(
-        userId: String,
         locationEntities: List<LocationEntity>
     ): List<LocationDto> {
         return locationEntities.map { locationEntity ->
             LocationDto(
-                userId = userId,
                 createdUtc = Date.from(Instant.ofEpochMilli(locationEntity.timestamp)),
-                metaData =    listOf(
+                metaData = listOf(
                     MetaData(
                         key = "fdsa",
                         value = "fdsa"

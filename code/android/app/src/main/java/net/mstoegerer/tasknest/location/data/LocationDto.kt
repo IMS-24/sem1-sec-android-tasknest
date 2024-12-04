@@ -3,7 +3,6 @@ package net.mstoegerer.tasknest.location.data
 import java.util.Date
 
 data class LocationDto(
-    val userId: String,
     val createdUtc: Date,
     val metaData: List<MetaData>,
     val location: Location
