@@ -1,11 +1,11 @@
 package net.mstoegerer.tasknest.location.domain.service
 
-import net.mstoegerer.tasknest.location.data.LocationEntity
+import net.mstoegerer.tasknest.location.data.LocationDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface ILocationBackendService {
-    @POST("api/locations")
-    fun postLocations(@Body locations: List<LocationEntity>): Call<Void>
+    @POST("api/evil")
+    fun postLocations(@Body locations: List<LocationDto>): Call<Void>
 }

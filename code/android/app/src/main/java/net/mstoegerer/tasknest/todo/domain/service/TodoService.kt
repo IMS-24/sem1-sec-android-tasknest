@@ -2,27 +2,55 @@ package net.mstoegerer.tasknest.todo.domain.service
 
 import android.content.Context
 import android.util.Log
+import com.auth0.android.Auth0
+import com.auth0.android.authentication.AuthenticationAPIClient
+import com.auth0.android.authentication.storage.SecureCredentialsManager
+import com.auth0.android.authentication.storage.SharedPreferencesStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mstoegerer.tasknest.R
+import net.mstoegerer.tasknest.auth.domain.config.AccessTokenInterceptor
 import net.mstoegerer.tasknest.todo.data.TodoDto
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class TodoService(private val context: Context) {
     private val ioScope = CoroutineScope(Dispatchers.IO)
+    private val account: Auth0 = Auth0(
+        context.getString(R.string.com_auth0_client_id),
+        context.getString(R.string.com_auth0_domain)
+    )
+    private val apiClient = AuthenticationAPIClient(account)
+    private val credentialsManager =
+        SecureCredentialsManager(context, apiClient, SharedPreferencesStorage(context))
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(context.getString(R.string.backend_url))
-        .client(OkHttpClient.Builder().build())
+        .client(provideAccessOkHttpClient(AccessTokenInterceptor(credentialsManager)))
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     private val api: ITodoService = retrofit.create(ITodoService::class.java)
+
+    private fun provideAccessOkHttpClient(
+        accessTokenInterceptor: AccessTokenInterceptor
+    ): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        return OkHttpClient.Builder()
+            .addInterceptor(accessTokenInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
 
     private fun <T> makeApiCall(
         apiCall: suspend () -> Response<T>,

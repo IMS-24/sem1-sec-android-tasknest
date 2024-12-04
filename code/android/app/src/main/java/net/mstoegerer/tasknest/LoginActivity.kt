@@ -2,8 +2,8 @@ package net.mstoegerer.tasknest
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import net.mstoegerer.tasknest.auth.domain.service.AuthService
 import net.mstoegerer.tasknest.databinding.ActivityLoginBinding
-import net.mstoegerer.tasknest.service.AuthService
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding

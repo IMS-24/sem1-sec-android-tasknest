@@ -39,6 +39,7 @@ androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version
 androidx-work-rxjava2 = { module = "androidx.work:work-rxjava2", version.ref = "workRuntime" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntime" }
 auth0 = { module = "com.auth0.android:auth0", version.ref = "auth0" }
+auth0-credentials-manager = { module = "com.auth0.android:auth0-credentials-manager", version.ref = "auth0" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

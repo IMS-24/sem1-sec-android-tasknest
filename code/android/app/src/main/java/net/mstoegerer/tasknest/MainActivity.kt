@@ -76,7 +76,11 @@ class MainActivity : AppCompatActivity(), OnMapsSdkInitializedCallback {
         }
 
         val rootView = findViewById<View>(android.R.id.content)
-        Snackbar.make(rootView, "Welcome $userName ($userEmail) - id: $userId", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            rootView,
+            "Welcome $userName ($userEmail) - id: $userId",
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     private fun initializeComponents() {

@@ -12,9 +12,6 @@ interface LocationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLocation(location: LocationEntity)
 
-    @Query("SELECT * FROM locations ORDER BY timestamp DESC")
-    suspend fun getAllLocations(): List<LocationEntity>
-
     @Query("SELECT * FROM locations WHERE persisted = 0 ORDER BY timestamp DESC")
     suspend fun getOfflinePersistedLocations(): List<LocationEntity>
 
