@@ -29,10 +29,8 @@ public class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder
-            .Property(entity => entity.Password)
-            .HasMaxLength(200)
-            .IsRequired();
-
+            .Property(entity => entity.ExternalId)
+            .IsRequired(false);
 
         builder
             .Property(entity => entity.CreatedUtc)
@@ -84,7 +82,6 @@ public class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
             {
                 Email = "admin@tasknest.com",
                 Name = "Admin",
-                Password = "admin",
                 CreatedUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                 UpdatedUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                 Id = Guid.Parse("23d8d722-4037-466c-a68f-98e90e9ba66b")

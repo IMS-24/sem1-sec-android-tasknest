@@ -1,4 +1,5 @@
 using net.mstoegerer.TaskNest.Api.Domain.DTOs;
+using net.mstoegerer.TaskNest.Api.Domain.Entities;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Context;
 
 namespace net.mstoegerer.TaskNest.Api.Application.Services;
@@ -15,9 +16,15 @@ public class UserService(ApplicationDbContext dbContext)
         }));
     }
 
-    /*public async Task<User?> GetUserByTokenAsync(string token)
+    public async Task AddUserAsync(CreateUserDto createUserDto)
     {
-        var res = await dbContext.Users.FirstOrDefaultAsync(x => x.Token == token);
-        return res;
-    }*/
+        await dbContext.Users.AddAsync(new User
+        {
+            Id = Guid.NewGuid(),
+            Name = $"{createUserDto.GivenName} {createUserDto.FamilyName}",
+            Email = createUserDto.Email,
+            ExternalId = Guid.NewGuid()
+        });
+        await dbContext.SaveChangesAsync();
+    }
 }

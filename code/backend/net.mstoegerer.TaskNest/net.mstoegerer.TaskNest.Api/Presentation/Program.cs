@@ -4,7 +4,6 @@ using net.mstoegerer.TaskNest.Api.Domain.Configs;
 using net.mstoegerer.TaskNest.Api.Infrastructure;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Extensions;
 using net.mstoegerer.TaskNest.Api.Presentation.Extensions;
-using net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 
 const bool seed = false;
 if (seed)
@@ -40,8 +39,10 @@ builder.Services.AddHttpLogging(o =>
     o.LoggingFields = HttpLoggingFields.All;
     o.RequestHeaders.Add("Authorization");
 });
+builder.Services.AddApiKey(auth0Config);
 var app = builder.Build();
-app.UseCurrentUserMiddleware();
+
+// app.UseCurrentUserMiddleware();
 // Configure the HTTP request pipeline.
 // if (app.Environment.IsDevelopment())
 // {

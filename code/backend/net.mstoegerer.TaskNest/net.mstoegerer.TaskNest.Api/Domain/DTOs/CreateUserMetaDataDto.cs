@@ -18,8 +18,6 @@ public class MetaDataDto
 
 public class CreateUserMetaDataDto
 {
-    public string Password { get; set; } = null!;
-    public string PhoneNumber { get; set; } = null!;
     public Guid UserId { get; set; }
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     public MetaDataDto MetaData { get; set; }

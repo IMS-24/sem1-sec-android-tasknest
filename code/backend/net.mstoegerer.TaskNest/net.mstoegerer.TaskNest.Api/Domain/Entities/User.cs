@@ -2,10 +2,10 @@ namespace net.mstoegerer.TaskNest.Api.Domain.Entities;
 
 public class User
 {
+    public Guid? ExternalId { get; set; }
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
-    public string Password { get; set; } = null!;
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedUtc { get; set; } = DateTime.UtcNow;

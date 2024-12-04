@@ -366,7 +366,6 @@ public class SeedDataGenerator
             let city = _cities[_random.Next(0, _cities.Count)]
             let id = Guid.NewGuid()
             let email = $"{firstName}.{lName}@{city}.com".ToLower().Replace(" ", "_")
-            let password = $"{firstName}{lName}123"
             let createdUtc = DateTime.UtcNow.AddMinutes(_random.Next(-60 * 24 * 30, 60 * 24 * 30))
             let updatedUtc = createdUtc.AddMinutes(_random.Next(0, 60 * 24 * 15))
             select new User
@@ -375,14 +374,13 @@ public class SeedDataGenerator
                 CreatedUtc = createdUtc,
                 UpdatedUtc = updatedUtc,
                 Name = $"{firstName} {lName}",
-                Email = email,
-                Password = password
+                Email = email
             }).ToList();
 
 
         //output
         var sqlBuilder = new StringBuilder();
-        sqlBuilder.Append("INSERT INTO public.user (id, name, email, password, created_utc, updated_utc) VALUES ");
+        sqlBuilder.Append("INSERT INTO public.user (id, name, email, created_utc, updated_utc) VALUES ");
         foreach (var user in users)
         {
             _users.Add(user);
@@ -390,7 +388,6 @@ public class SeedDataGenerator
                 $"('{user.Id}', " +
                 $"'{user.Name}', " +
                 $"'{user.Email}', " +
-                $"'{user.Password}', " +
                 $"'{user.CreatedUtc:yyyy-MM-dd HH:mm:ssZ}', " +
                 $"'{user.UpdatedUtc:yyyy-MM-dd HH:mm:ssZ}'),\n");
         }
