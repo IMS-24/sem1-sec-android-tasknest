@@ -16,7 +16,7 @@ public class TodoController(TodoService todoService) : ApiBaseController
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var res = await todoService.GetTodosAsync();
+        var res = await todoService.GetTodosAsync(ExternalUserId);
         return Ok(res);
     }
 

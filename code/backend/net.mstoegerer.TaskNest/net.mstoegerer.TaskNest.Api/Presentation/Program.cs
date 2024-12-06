@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.IdentityModel.Logging;
 using net.mstoegerer.TaskNest.Api.Application.Extensions;
 using net.mstoegerer.TaskNest.Api.Domain.Configs;
 using net.mstoegerer.TaskNest.Api.Infrastructure;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Extensions;
 using net.mstoegerer.TaskNest.Api.Presentation.Extensions;
+using Serilog;
 
 const bool seed = false;
 if (seed)
@@ -24,7 +26,11 @@ var configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile("Presentation/appsettings.Local.json", true);
 IConfiguration configuration = configurationBuilder
     .Build();
-
+builder.Host.UseSerilog((ctx, cfg) =>
+{
+    cfg.WriteTo.Console();
+    cfg.MinimumLevel.Information();
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -45,11 +51,13 @@ var app = builder.Build();
 
 // app.UseCurrentUserMiddleware();
 // Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-app.UseSwagger();
-app.UseSwaggerUI();
-// }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    IdentityModelEventSource.ShowPII = true;
+    IdentityModelEventSource.LogCompleteSecurityArtifact = true;
+}
 
 app.UseHttpLogging();
 //app.UseMiddleware<TokenValidationMiddleware>();

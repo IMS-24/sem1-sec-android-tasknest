@@ -78,11 +78,14 @@ public class TodoService(ApplicationDbContext dbContext)
         };
     }
 
-    public async Task<IEnumerable<TodoDto>> GetTodosAsync()
+    public async Task<IEnumerable<TodoDto>> GetTodosAsync(string? extUserId)
     {
+        if (string.IsNullOrEmpty(extUserId)) throw new Exception("External user id is required");
+        var user = dbContext.Users.FirstOrDefault(x => x.ExternalId == extUserId);
+        if (user == null) throw new Exception("User not found");
         var todos = dbContext.Todos
             .Include(x => x.Attachments)
-            .Where(x => x.DeletedUtc == null);
+            .Where(x => x.DeletedUtc == null && x.UserId == user.Id);
 
         if (todos == null) throw new Exception("Todos not found");
         return await todos.Select(todo => new TodoDto

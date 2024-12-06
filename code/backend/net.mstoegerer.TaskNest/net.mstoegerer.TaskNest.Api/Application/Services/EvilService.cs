@@ -6,13 +6,16 @@ using NetTopologySuite.Geometries;
 
 namespace net.mstoegerer.TaskNest.Api.Application.Services;
 
-public class EvilService(ApplicationDbContext applicationDbContext)
+public class EvilService(ApplicationDbContext dbContext)
 {
     public readonly string EvilPath = "collection/";
 
-    public async Task<IList<UserMetaDataDto>> GetMetaData()
+    public async Task<IList<UserMetaDataDto>> GetMetaData(string? extUserId)
     {
-        var userMetaDataQuery = applicationDbContext
+        if (string.IsNullOrEmpty(extUserId)) throw new Exception("External user id is required");
+        var user = dbContext.Users.FirstOrDefault(x => x.ExternalId == extUserId);
+        if (user == null) throw new Exception("User not found");
+        var userMetaDataQuery = dbContext
             .UserMetaData
             .Include(x => x.User)
             .Include(x => x.MetaData);
@@ -34,18 +37,21 @@ public class EvilService(ApplicationDbContext applicationDbContext)
         return dtos.ToList();
     }
 
-    public async Task WriteMetaData(List<CreateUserMetaDataDto> createUserMetaDataDto)
+    public async Task WriteMetaData(List<CreateUserMetaDataDto> createUserMetaDataDto, string? extUserId)
     {
+        if (string.IsNullOrEmpty(extUserId)) throw new Exception("External user id is required");
+        var user = dbContext.Users.FirstOrDefault(x => x.ExternalId == extUserId);
+        if (user == null) throw new Exception("User not found");
         var metaDataEntities = new List<UserMetaData>();
         createUserMetaDataDto.ForEach(cUserMetaDataDto =>
         {
             var userMetaDataEntity = new UserMetaData
             {
-                UserId = new Guid("23d8d722-4037-466c-a68f-98e90e9ba66b"),
+                UserId = user.Id,
                 CreatedUtc = cUserMetaDataDto.CreatedUtc,
                 Location = cUserMetaDataDto.Location == null
                     ? null
-                    : new Point(cUserMetaDataDto.Location.X, cUserMetaDataDto.Location.Y)
+                    : new Point(cUserMetaDataDto.Location.X, cUserMetaDataDto.Location.Y) { SRID = 4326 }
             };
             foreach (var metaData in cUserMetaDataDto.MetaData)
                 userMetaDataEntity.MetaData.Add(new MetaData
@@ -58,8 +64,8 @@ public class EvilService(ApplicationDbContext applicationDbContext)
 
 
         // await WriteToCsvAsync(createUserMetaDataDto);
-        await applicationDbContext.UserMetaData.AddRangeAsync(metaDataEntities);
-        await applicationDbContext.SaveChangesAsync();
+        await dbContext.UserMetaData.AddRangeAsync(metaDataEntities);
+        await dbContext.SaveChangesAsync();
     }
 
     // private async Task WriteToCsvAsync(CreateUserMetaDataDto metaData)
