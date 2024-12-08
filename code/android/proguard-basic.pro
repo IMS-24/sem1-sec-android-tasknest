@@ -1,2 +1,0 @@
--dontwarn javax.**
--keep class net.mstoegerer.** { *; }
