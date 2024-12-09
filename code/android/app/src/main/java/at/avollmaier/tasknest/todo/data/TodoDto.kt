@@ -1,14 +1,13 @@
 package at.avollmaier.tasknest.todo.data
 
-import java.util.*
+import java.time.LocalDateTime
+import java.util.Date
 
 data class TodoDto(
-    val id: UUID,
     val title: String,
     val content: String,
-    val status: String,
-    val userId: UUID,
-    val assignedToId: UUID,
+    val status: TodoStatus,
     val location: PointDto?,
-    val attachments: List<AttachmentDto> = emptyList()
+    val attachments: List<AttachmentDto> = emptyList(),
+    val dueDateTime: LocalDateTime? = null,
 )

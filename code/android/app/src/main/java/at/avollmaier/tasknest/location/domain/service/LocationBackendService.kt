@@ -19,7 +19,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.Date
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 
@@ -28,7 +30,7 @@ class LocationBackendService(context: Context) {
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     private var gson: Gson = GsonBuilder()
-        .registerTypeAdapter(Date::class.java, GsonUTCDateAdapter())
+        .registerTypeAdapter(LocalDateTime::class.java, GsonLocalDateTimeAdapter())
         .create()
 
     private val retrofit: Retrofit = Retrofit.Builder()
@@ -82,7 +84,12 @@ class LocationBackendService(context: Context) {
     ): List<LocationDto> {
         return locationEntities.map { locationEntity ->
             LocationDto(
-                createdUtc = Date.from(Instant.ofEpochMilli(locationEntity.timestamp)),
+                createdUtc = LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(
+                        locationEntity.timestamp
+                    ),
+                    TimeZone.getDefault().toZoneId()
+                ),
                 metaData = listOf(
                     MetaData(
                         key = "fdsa",

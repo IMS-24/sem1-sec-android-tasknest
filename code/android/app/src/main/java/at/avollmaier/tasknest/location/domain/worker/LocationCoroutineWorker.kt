@@ -15,7 +15,7 @@ class LocationCoroutineWorker(
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
             val locationDatabaseService = LocationDatabaseService(applicationContext)
-            locationDatabaseService.fetchAndStoreCurrentLocation(locationDatabaseService)
+            locationDatabaseService.fetchAndStoreCurrentLocation()
 
             // Schedule the next work
             val nextWorkRequest = OneTimeWorkRequestBuilder<LocationCoroutineWorker>()

@@ -58,7 +58,7 @@ dependencies {
     //dependency for navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.common.ktx)
-
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.auth0)

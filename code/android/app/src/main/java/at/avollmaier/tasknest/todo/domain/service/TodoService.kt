@@ -1,15 +1,13 @@
-package net.mstoegerer.tasknest.todo.domain.service
+package at.avollmaier.tasknest.todo.domain.service
 
 import android.content.Context
 import android.util.Log
 import at.avollmaier.tasknest.R
 import at.avollmaier.tasknest.auth.domain.config.AccessTokenInterceptor
+import at.avollmaier.tasknest.location.domain.service.GsonLocalDateTimeAdapter
 import at.avollmaier.tasknest.todo.data.TodoDto
-import at.avollmaier.tasknest.todo.domain.service.ITodoService
-import com.auth0.android.Auth0
-import com.auth0.android.authentication.AuthenticationAPIClient
-import com.auth0.android.authentication.storage.SecureCredentialsManager
-import com.auth0.android.authentication.storage.SharedPreferencesStorage
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,15 +16,22 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class TodoService(private val context: Context) {
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
+
+    private var gson: Gson = GsonBuilder()
+        .registerTypeAdapter(LocalDateTime::class.java, GsonLocalDateTimeAdapter())
+        .create()
+
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(context.getString(R.string.backend_url))
         .client(provideAccessOkHttpClient(AccessTokenInterceptor(context)))
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

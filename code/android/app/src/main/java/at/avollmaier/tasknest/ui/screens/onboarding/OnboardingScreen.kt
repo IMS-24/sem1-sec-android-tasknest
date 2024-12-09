@@ -89,7 +89,7 @@ fun OnboardScreen(viewModel: OnboardScreenViewModel) {
         )
 
         OnBoardNavButton(
-            modifier = Modifier
+            modifier = Modifier     
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 16.dp),
             currentPage = currentPage.intValue,

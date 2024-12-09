@@ -46,7 +46,8 @@ class AuthProviderService : AuthProvider {
     ) {
         WebAuthProvider.login(account)
             .withScheme(context.getString(R.string.com_auth0_scheme))
-            .withScope("openid profile email")
+            .withScope("openid profile email offline_access")
+            .withAudience("https://${context.getString(R.string.com_auth0_domain)}/api/v2/")
             .start(
                 context,
                 object : Callback<Credentials, AuthenticationException> {
