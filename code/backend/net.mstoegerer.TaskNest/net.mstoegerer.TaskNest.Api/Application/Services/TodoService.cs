@@ -17,8 +17,11 @@ public class TodoService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<TodoDto> CreateTodoAsync(TodoDto todoDto)
+    public async Task<TodoDto> CreateTodoAsync(string externalUserId, CreateTodoDto todoDto)
     {
+        if (string.IsNullOrEmpty(externalUserId)) throw new Exception("External user id is required");
+        var user = dbContext.Users.FirstOrDefault(x => x.ExternalId == externalUserId);
+        if (user == null) throw new Exception("User not found");
         var todo = new Todo
         {
             Id = Guid.NewGuid(),
@@ -27,11 +30,11 @@ public class TodoService(ApplicationDbContext dbContext)
             CreatedUtc = todoDto.CreatedUtc,
             UpdatedUtc = todoDto.UpdatedUtc,
             Status = todoDto.Status,
-            AssignedToId = todoDto.AssignedToId,
+            AssignedToId = todoDto.AssignedToId ?? user.Id,
             Location = todoDto.Location == null
                 ? null
                 : new Point(todoDto.Location.X, todoDto.Location.Y),
-            UserId = todoDto.UserId,
+            UserId = user.Id,
             Attachments = todoDto.Attachments
                 .Select(x => new Attachment
                 {
@@ -42,7 +45,28 @@ public class TodoService(ApplicationDbContext dbContext)
         };
         dbContext.Todos.Add(todo);
         await dbContext.SaveChangesAsync();
-        return todoDto;
+        return new TodoDto
+        {
+            Id = todo.Id,
+            Title = todo.Title,
+            Content = todo.Content,
+            CreatedUtc = todo.CreatedUtc,
+            UpdatedUtc = todo.UpdatedUtc,
+            Status = todo.Status,
+            AssignedToId = todo.AssignedToId,
+            Location = todo.Location == null
+                ? null
+                : PointDto.FromPoint(todo.Location),
+            UserId = todo.UserId,
+            Attachments = todo.Attachments
+                .Select(x => new AttachmentDto
+                {
+                    Data = x.Data,
+                    ContentType = x.ContentType,
+                    Name = x.Name
+                })
+                .ToList()
+        };
     }
 
     public async Task<TodoDto> GetTodoAsync(Guid id)

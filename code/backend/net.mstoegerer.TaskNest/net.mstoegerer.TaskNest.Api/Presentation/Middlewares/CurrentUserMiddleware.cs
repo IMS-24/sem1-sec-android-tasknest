@@ -6,21 +6,16 @@ namespace net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 public static class CurrentUser
 {
     public static string UserId { get; private set; }
-    public static string UserName { get; private set; }
-    public static string Email { get; private set; }
 
-    public static void SetUser(string userId, string userName, string email)
+
+    public static void SetUser(string userId)
     {
         UserId = userId;
-        UserName = userName;
-        Email = email;
     }
 
     public static void Clear()
     {
         UserId = null;
-        UserName = null;
-        Email = null;
     }
 }
 
@@ -47,10 +42,8 @@ public class CurrentUserMiddleware
                 var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
                 var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                var userName = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-                var email = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
 
-                if (!string.IsNullOrEmpty(userId)) CurrentUser.SetUser(userId, userName, email);
+                if (!string.IsNullOrEmpty(userId)) CurrentUser.SetUser(userId);
             }
             catch
             {

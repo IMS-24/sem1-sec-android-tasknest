@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using net.mstoegerer.TaskNest.Api.Application.Services;
 using net.mstoegerer.TaskNest.Api.Domain.DTOs;
@@ -7,6 +8,7 @@ namespace net.mstoegerer.TaskNest.Api.Presentation.Controllers;
 public class TodoController(TodoService todoService) : ApiBaseController
 {
     [HttpGet("{id:guid}")]
+    [Authorize]
     public async Task<IActionResult> Get(Guid id)
     {
         var res = await todoService.GetTodoAsync(id);
@@ -14,6 +16,7 @@ public class TodoController(TodoService todoService) : ApiBaseController
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         var res = await todoService.GetTodosAsync(ExternalUserId);
@@ -21,9 +24,10 @@ public class TodoController(TodoService todoService) : ApiBaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] TodoDto todoDto)
+    [Authorize]
+    public async Task<IActionResult> Create([FromBody] CreateTodoDto todoDto)
     {
-        var res = await todoService.CreateTodoAsync(todoDto);
+        var res = await todoService.CreateTodoAsync(ExternalUserId, todoDto);
         return Ok(res);
     }
 
