@@ -23,6 +23,20 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
         return Ok(res);
     }
 
+    [HttpPut("{id:guid}/done")]
+    public async Task<IActionResult> ToggleDoneAsync(Guid id)
+    {
+        await todoService.ToggleDoneAsync(id);
+        return Ok();
+    }
+
+    [HttpPut("{id:guid}/cancel")]
+    public async Task<IActionResult> CancelTodoAsync(Guid id)
+    {
+        await todoService.MarkTodoAsCancelledAsync(id);
+        return Ok();
+    }
+
     [HttpGet("{id:guid}/attachment")]
     [Authorize]
     public async Task<IActionResult> GetAttachments(Guid id)

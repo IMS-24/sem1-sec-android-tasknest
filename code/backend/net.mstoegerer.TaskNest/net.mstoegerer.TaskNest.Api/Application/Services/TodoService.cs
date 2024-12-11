@@ -118,6 +118,24 @@ public class TodoService(ApplicationDbContext dbContext)
         };
     }
 
+    public async Task ToggleDoneAsync(Guid id)
+    {
+        var todo = dbContext.Todos.FirstOrDefault(x =>
+            x.Id == id && x.UserId == CurrentUser.UserId && x.DeletedUtc == null);
+        if (todo == null) throw new Exception("Todo not found");
+        todo.Status = todo.Status != "done" ? "done" : "new";
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task MarkTodoAsCancelledAsync(Guid id)
+    {
+        var todo = dbContext.Todos.FirstOrDefault(x =>
+            x.Id == id && x.UserId == CurrentUser.UserId && x.DeletedUtc == null);
+        if (todo == null) throw new Exception("Todo not found");
+        todo.Status = "cancelled";
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<IEnumerable<TodoDto>> GetTodosAsync()
     {
         var todos = dbContext.Todos
