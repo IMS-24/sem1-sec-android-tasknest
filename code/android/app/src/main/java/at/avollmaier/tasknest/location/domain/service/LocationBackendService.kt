@@ -4,23 +4,24 @@ import android.content.Context
 import android.util.Log
 import at.avollmaier.tasknest.R
 import at.avollmaier.tasknest.auth.domain.config.AccessTokenInterceptor
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import at.avollmaier.tasknest.location.data.Location
 import at.avollmaier.tasknest.location.data.LocationDto
 import at.avollmaier.tasknest.location.data.LocationEntity
 import at.avollmaier.tasknest.location.data.MetaData
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.mstoegerer.tasknest.location.domain.LocationDatabase
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.jackson.JacksonConverterFactory
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.Date
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
@@ -29,15 +30,18 @@ class LocationBackendService(context: Context) {
     private val locationDao = LocationDatabase.getDatabase(context).locationDao()
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    private var gson: Gson = GsonBuilder()
-        .registerTypeAdapter(LocalDateTime::class.java, GsonLocalDateTimeAdapter())
-        .create()
 
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(context.getString(R.string.backend_url))
-        .client(provideAccessOkHttpClient(AccessTokenInterceptor(context)))
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .build()
+    private val objectMapper = ObjectMapper().apply {
+
+        registerModule(JavaTimeModule())
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+    }
+    private val retrofit: Retrofit =
+        Retrofit.Builder().baseUrl(context.getString(R.string.backend_url))
+            .client(provideAccessOkHttpClient(AccessTokenInterceptor(context)))
+            .addConverterFactory(JacksonConverterFactory.create(objectMapper))
+            .build()
 
     private val api: ILocationBackendService = retrofit.create(ILocationBackendService::class.java)
 
@@ -46,13 +50,9 @@ class LocationBackendService(context: Context) {
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        return OkHttpClient.Builder()
-            .addInterceptor(accessTokenInterceptor)
-            .addInterceptor(loggingInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .build()
+        return OkHttpClient.Builder().addInterceptor(accessTokenInterceptor)
+            .addInterceptor(loggingInterceptor).connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS).writeTimeout(30, TimeUnit.SECONDS).build()
     }
 
     suspend fun publishOfflinePersistedLocations() {
@@ -66,8 +66,7 @@ class LocationBackendService(context: Context) {
                     Log.d("LocationService", "Locations sent to backend: $locations")
                 } else {
                     Log.e(
-                        "LocationService",
-                        "Failed to send locations: ${response.raw()}"
+                        "LocationService", "Failed to send locations: ${response.raw()}"
                     )
                     restorePersistedFlag(offlineLocations)
                 }
@@ -79,7 +78,7 @@ class LocationBackendService(context: Context) {
     }
 
 
-    fun mapToLocationDto(
+    private fun mapToLocationDto(
         locationEntities: List<LocationEntity>
     ): List<LocationDto> {
         return locationEntities.map { locationEntity ->
@@ -87,18 +86,13 @@ class LocationBackendService(context: Context) {
                 createdUtc = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(
                         locationEntity.timestamp
-                    ),
-                    TimeZone.getDefault().toZoneId()
-                ),
-                metaData = listOf(
+                    ), TimeZone.getDefault().toZoneId()
+                ), metaData = listOf(
                     MetaData(
-                        key = "fdsa",
-                        value = "fdsa"
+                        key = "fdsa", value = "fdsa"
                     )
-                ),
-                location = Location(
-                    x = locationEntity.latitude,
-                    y = locationEntity.longitude
+                ), location = Location(
+                    x = locationEntity.latitude, y = locationEntity.longitude
                 )
             )
         }

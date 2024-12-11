@@ -19,7 +19,8 @@ import net.mstoegerer.tasknest.location.domain.LocationDatabase
 class LocationDatabaseService(private val context: Context) {
     private val locationDao = LocationDatabase.getDatabase(context).locationDao()
     private val ioScope = CoroutineScope(Dispatchers.IO)
-    private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    private val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
 
     private fun hasLocationPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
@@ -32,12 +33,12 @@ class LocationDatabaseService(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    suspend fun getCurrentLocation(): Location? {
+    suspend fun getCurrentLocation(): Location {
         if (!hasLocationPermission()) {
             throw IllegalStateException("Location permission not granted")
         }
         val location = fusedLocationClient.lastLocation.await()
-        return location?.let { Location(it.latitude, it.longitude) }
+        return location.let { Location(it.latitude, it.longitude) }
     }
 
     @SuppressLint("MissingPermission")

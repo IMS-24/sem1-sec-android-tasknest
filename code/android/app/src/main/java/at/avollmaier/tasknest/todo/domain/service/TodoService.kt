@@ -1,13 +1,18 @@
 package at.avollmaier.tasknest.todo.domain.service
 
+import ZonedDateTimeToUtcSerializer
 import android.content.Context
 import android.util.Log
 import at.avollmaier.tasknest.R
 import at.avollmaier.tasknest.auth.domain.config.AccessTokenInterceptor
-import at.avollmaier.tasknest.location.domain.service.GsonLocalDateTimeAdapter
-import at.avollmaier.tasknest.todo.data.TodoDto
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import at.avollmaier.tasknest.todo.data.CreateTodoDto
+import at.avollmaier.tasknest.todo.data.FetchTodoDto
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,8 +20,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.time.LocalDateTime
+import retrofit2.converter.jackson.JacksonConverterFactory
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -24,15 +29,22 @@ class TodoService(private val context: Context) {
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
 
-    private var gson: Gson = GsonBuilder()
-        .registerTypeAdapter(LocalDateTime::class.java, GsonLocalDateTimeAdapter())
-        .create()
+    private val objectMapper = ObjectMapper().apply {
+        registerModule(JavaTimeModule())
+        disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
 
+        val module = SimpleModule()
+        module.addSerializer(ZonedDateTime::class.java, ZonedDateTimeToUtcSerializer())
+        registerModule(module)
+    }
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(context.getString(R.string.backend_url))
         .client(provideAccessOkHttpClient(AccessTokenInterceptor(context)))
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(JacksonConverterFactory.create(objectMapper))
+
         .build()
 
     private val api: ITodoService = retrofit.create(ITodoService::class.java)
@@ -72,7 +84,7 @@ class TodoService(private val context: Context) {
         }
     }
 
-    fun getTodo(id: UUID, callback: (TodoDto?) -> Unit) {
+    fun getTodo(id: UUID, callback: (CreateTodoDto?) -> Unit) {
         makeApiCall(
             apiCall = { api.getTodo(id).execute() },
             onSuccess = { callback(it) },
@@ -80,7 +92,7 @@ class TodoService(private val context: Context) {
         )
     }
 
-    fun getTodos(callback: (List<TodoDto>?) -> Unit) {
+    fun getTodos(callback: (List<FetchTodoDto>?) -> Unit) {
         makeApiCall(
             apiCall = { api.getTodos().execute() },
             onSuccess = { callback(it) },
@@ -88,17 +100,17 @@ class TodoService(private val context: Context) {
         )
     }
 
-    fun createTodo(todoDto: TodoDto, callback: (Boolean) -> Unit) {
+    fun createTodo(createTodoDto: CreateTodoDto, callback: (Boolean) -> Unit) {
         makeApiCall(
-            apiCall = { api.createTodo(todoDto).execute() },
+            apiCall = { api.createTodo(createTodoDto).execute() },
             onSuccess = { callback(true) },
             onError = { callback(false) }
         )
     }
 
-    fun patchTodo(id: UUID, todoDto: TodoDto, callback: (Boolean) -> Unit) {
+    fun finishTodo(id: UUID, callback: (Boolean) -> Unit) {
         makeApiCall(
-            apiCall = { api.patchTodo(id, todoDto).execute() },
+            apiCall = { api.finishTodo(id).execute() },
             onSuccess = { callback(true) },
             onError = { callback(false) }
         )

@@ -1,7 +1,7 @@
 package at.avollmaier.tasknest.todo.data
 
 enum class TodoStatus {
-    OPEN,
+    NEW,
     DONE,
     CANCELED
 }

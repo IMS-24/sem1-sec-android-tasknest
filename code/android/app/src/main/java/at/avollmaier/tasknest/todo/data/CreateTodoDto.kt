@@ -1,13 +1,12 @@
 package at.avollmaier.tasknest.todo.data
 
-import java.time.LocalDateTime
-import java.util.Date
+import java.time.ZonedDateTime
 
-data class TodoDto(
+data class CreateTodoDto(
     val title: String,
     val content: String,
     val status: TodoStatus,
-    val location: PointDto?,
+    val location: PointDto,
     val attachments: List<AttachmentDto> = emptyList(),
-    val dueDateTime: LocalDateTime? = null,
+    val dueUtc: ZonedDateTime
 )

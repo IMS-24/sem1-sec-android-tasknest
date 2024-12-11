@@ -1,7 +1,10 @@
 [versions]
 accompanistPermissions = "0.36.0"
 agp = "8.7.3"
+androidMapsUtils = "2.3.0"
 coilCompose = "2.0.0-rc01"
+jacksonDatatypeJsr310 = "2.18.2"
+jacksonModuleKotlin = "2.18.2"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -10,9 +13,10 @@ espressoCore = "3.6.1"
 kotlinxCoroutinesPlayServices = "1.7.3"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.11.00"
-materialIconsExtended = "1.7.5"
-navigationCommonKtx = "2.8.4"
+composeBom = "2024.12.01"
+materialIconsExtended = "1.7.6"
+navigationCommonKtx = "2.8.5"
+playServicesMaps = "19.0.0"
 retrofit = "2.11.0"
 auth0 = "2.11.0"
 playServicesLocation = "21.3.0"
@@ -22,9 +26,12 @@ roomKtx = "2.6.1"
 #
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtils" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jacksonModuleKotlin" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jacksonDatatypeJsr310" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -43,8 +50,9 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigationCommonKtx" }
 auth0 = { module = "com.auth0.android:auth0", version.ref = "auth0" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+converter-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
 
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCommon" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommon" }

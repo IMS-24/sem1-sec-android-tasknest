@@ -60,9 +60,14 @@ dependencies {
     implementation(libs.androidx.navigation.common.ktx)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+    implementation(libs.converter.jackson)
     implementation(libs.auth0)
     implementation(libs.coil.compose)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
+
+    implementation(libs.play.services.maps)
+    implementation(libs.android.maps.utils)
 
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.accompanist.permissions)

@@ -2,6 +2,11 @@ package at.avollmaier.tasknest.ui.screens.today
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,17 +55,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import at.avollmaier.tasknest.R
-import at.avollmaier.tasknest.todo.data.PointDto
-import at.avollmaier.tasknest.todo.data.TodoDto
-import at.avollmaier.tasknest.todo.data.TodoStatus
+import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.ui.theme.TaskNestTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,7 +133,7 @@ fun TodayScreen(
                                 }
                             } else {
                                 items(todos) { todo ->
-                                    TodoCard(todo = todo)
+                                    TodoCard(todo, viewModel)
                                 }
                             }
                         }
@@ -199,8 +204,14 @@ fun Dropdown(viewModel: TodayViewModel) {
 fun AddTodoDialog(onDismiss: () -> Unit, viewModel: TodayViewModel) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
-    var dueDate by remember { mutableStateOf<LocalDateTime?>(null) }
+    var dueDate by remember { mutableStateOf<ZonedDateTime>(ZonedDateTime.now() + Duration.ofDays(1L)) }
+    var attachments by remember { mutableStateOf<MutableList<Uri>>(mutableListOf()) }
     val context = LocalContext.current
+
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            it.data?.data?.let { it1 -> attachments.add(it1) }
+        }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -213,7 +224,7 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: TodayViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Add Todo",
+                    text = "Create a new Todo",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -233,8 +244,7 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: TodayViewModel) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
-                    value = dueDate?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-                        ?: "",
+                    value = dueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                     onValueChange = {},
                     label = { Text("Due Date & Time") },
                     modifier = Modifier.fillMaxWidth(),
@@ -248,12 +258,14 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: TodayViewModel) {
                                     TimePickerDialog(
                                         context,
                                         { _, hour, minute ->
-                                            dueDate = LocalDateTime.of(
+                                            dueDate = ZonedDateTime.of(
+                                                LocalDateTime.of(
                                                 year,
                                                 month + 1,
                                                 dayOfMonth,
                                                 hour,
                                                 minute
+                                                ), ZoneId.systemDefault()
                                             )
                                         },
                                         calendar.get(Calendar.HOUR_OF_DAY),
@@ -273,6 +285,25 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: TodayViewModel) {
                         }
                     }
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = {
+                    val intent = Intent(
+                        Intent.ACTION_OPEN_DOCUMENT,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    )
+                        .apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                        }
+                    launcher.launch(intent)
+                }) {
+                    Text("Add Attachment")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyColumn {
+                    items(attachments) { attachment ->
+                        Text(attachment.toString())
+                    }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     horizontalArrangement = Arrangement.End,
@@ -287,7 +318,8 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: TodayViewModel) {
                             title,
                             content,
                             dueDate,
-                            context = context
+                            context = context,
+                            attachments = attachments
                         )
                         onDismiss()
                     }) {
@@ -299,8 +331,9 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: TodayViewModel) {
     }
 }
 
+
 @Composable
-fun TodoCard(todo: TodoDto) {
+fun TodoCard(todo: FetchTodoDto, viewModel: TodayViewModel) {
     var isChecked by remember { mutableStateOf(false) }
 
     Card(
@@ -319,7 +352,10 @@ fun TodoCard(todo: TodoDto) {
         ) {
             Checkbox(
                 checked = isChecked,
-                onCheckedChange = { isChecked = it }
+                onCheckedChange = {
+                    isChecked = it
+                    viewModel.finishTodo(todo)
+                }
             )
             Spacer(modifier = Modifier.width(4.dp))
             Column {
@@ -350,7 +386,7 @@ fun EmptyTodoState() {
                 painter = painterResource(id = R.drawable.nothing),
                 contentDescription = "No todos",
                 modifier = Modifier
-                    .padding(vertical = 20.dp)
+                    .padding(vertical = 10.dp)
                     .size(300.dp)
             )
             Text(
@@ -359,17 +395,10 @@ fun EmptyTodoState() {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 20.dp)
             )
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                onClick = {
-
-                }
-            ) {
-                Text("Add a new todo")
-            }
-
+            Text(
+                "Add a new todo by clicking the button below",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

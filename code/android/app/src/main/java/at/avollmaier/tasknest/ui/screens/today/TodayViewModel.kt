@@ -1,34 +1,28 @@
 // TodayViewModel.kt
 package at.avollmaier.tasknest.ui.screens.today
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import androidx.core.location.LocationManagerCompat.getCurrentLocation
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.avollmaier.tasknest.location.data.Location
-import at.avollmaier.tasknest.location.domain.service.LocationBackendService
 import at.avollmaier.tasknest.location.domain.service.LocationDatabaseService
+import at.avollmaier.tasknest.todo.data.AttachmentDto
+import at.avollmaier.tasknest.todo.data.CreateTodoDto
+import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.PointDto
-import at.avollmaier.tasknest.todo.domain.service.TodoService
-import at.avollmaier.tasknest.todo.data.TodoDto
 import at.avollmaier.tasknest.todo.data.TodoStatus
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import at.avollmaier.tasknest.todo.domain.service.TodoService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.util.UUID
 
+// TodayViewModel.kt
 class TodayViewModel(private val todoService: TodoService, context: Context) : ViewModel() {
-    private val _todos = MutableStateFlow<List<TodoDto>>(emptyList())
-    val todos: StateFlow<List<TodoDto>> = _todos
-    private val fusedLocationClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
+    private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
+    val todos: StateFlow<List<FetchTodoDto>> = _todos
+
 
     init {
         fetchTodos()
@@ -37,32 +31,76 @@ class TodayViewModel(private val todoService: TodoService, context: Context) : V
     private fun fetchTodos() {
         viewModelScope.launch {
             todoService.getTodos { fetchedTodos ->
-                _todos.value = fetchedTodos ?: emptyList()
+                fetchedTodos?.let {
+                    _todos.value = filterActiveTodos(fetchedTodos)
+                }
+
             }
         }
+    }
+
+    private fun filterActiveTodos(todos: List<FetchTodoDto>): List<FetchTodoDto> {
+        return todos.filter { it.status == TodoStatus.NEW }
     }
 
     fun refreshTodos() {
         fetchTodos()
     }
 
-    fun addTodo(title: String, content: String, dueDateTime: LocalDateTime?, context: Context) {
+    fun addTodo(
+        title: String,
+        content: String,
+        dueDateTime: ZonedDateTime,
+        context: Context,
+        attachments: MutableList<Uri>
+    ) {
         viewModelScope.launch {
             val location = LocationDatabaseService(context).getCurrentLocation()
-            val pointDto = location?.let { PointDto(it.x, it.y) }
+            val id = UUID.randomUUID()
 
             todoService.createTodo(
-                TodoDto(
+                CreateTodoDto(
                     title = title,
                     content = content,
-                    dueDateTime = dueDateTime,
-                    status = TodoStatus.OPEN,
-                    location = pointDto,
-                    attachments = emptyList()
+                    status = TodoStatus.NEW,
+                    location = PointDto(location.x, location.y),
+                    dueUtc = dueDateTime,
+                    attachments = handleFilePickerResult(context, id, attachments)
                 )
             ) {
                 fetchTodos()
             }
+        }
+    }
+
+    fun finishTodo(todo: FetchTodoDto) {
+        viewModelScope.launch {
+            val todoToUpdate = _todos.value.find { it.id == todo.id }
+            todoToUpdate?.let {
+                todoService.finishTodo(it.id) {
+                    fetchTodos()
+                }
+            }
+        }
+    }
+
+    private fun handleFilePickerResult(
+        context: Context,
+        uuid: UUID,
+        uris: List<Uri>
+    ): List<AttachmentDto> {
+        return uris.map { uri ->
+            val fileName = uri.path?.substringAfterLast('/') ?: "Unknown"
+            val contentType = context.contentResolver.getType(uri) ?: "application/octet-stream"
+            val data: ByteArray =
+                context.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: ByteArray(0)
+            AttachmentDto(
+                name = fileName,
+                fileName = fileName,
+                contentType = contentType,
+                data = data,
+                todoId = uuid,
+            )
         }
     }
 }

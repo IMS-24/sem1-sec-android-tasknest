@@ -1,6 +1,9 @@
 package at.avollmaier.tasknest.todo.data
 
-data class PointDto(
-    val x: Double,
-    val y: Double
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class PointDto @JsonCreator constructor(
+    @JsonProperty("x") val x: Double,
+    @JsonProperty("y") val y: Double
 )
