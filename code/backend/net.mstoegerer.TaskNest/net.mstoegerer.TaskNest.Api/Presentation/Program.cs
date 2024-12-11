@@ -55,7 +55,7 @@ app.UseCurrentUserMiddleware();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "net.mstoegerer.TaskNest.Api v1"));
     IdentityModelEventSource.ShowPII = true;
     IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 }
