@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using net.mstoegerer.TaskNest.Api.Domain.DTOs;
 using net.mstoegerer.TaskNest.Api.Domain.Entities;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Context;
+using net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 using NetTopologySuite.Geometries;
 
 namespace net.mstoegerer.TaskNest.Api.Application.Services;
@@ -10,16 +11,13 @@ public class EvilService(ApplicationDbContext dbContext)
 {
     public readonly string EvilPath = "collection/";
 
-    public async Task<IList<UserMetaDataDto>> GetMetaData(string? extUserId)
+    public async Task<IList<UserMetaDataDto>> GetMetaDataAsync()
     {
-        if (string.IsNullOrEmpty(extUserId)) throw new Exception("External user id is required");
-        var user = dbContext.Users.FirstOrDefault(x => x.ExternalId == extUserId);
-        if (user == null) throw new Exception("User not found");
         var userMetaDataQuery = dbContext
             .UserMetaData
             .Include(x => x.User)
             .Include(x => x.MetaData);
-        var res = userMetaDataQuery.ToList();
+        var res = await userMetaDataQuery.ToListAsync();
         var dtos = res.Select(x => new UserMetaDataDto
         {
             CreatedUtc = x.CreatedUtc,
@@ -37,17 +35,14 @@ public class EvilService(ApplicationDbContext dbContext)
         return dtos.ToList();
     }
 
-    public async Task WriteMetaData(List<CreateUserMetaDataDto> createUserMetaDataDto, string? extUserId)
+    public async Task WriteMetaDataAsync(List<CreateUserMetaDataDto> createUserMetaDataDto)
     {
-        if (string.IsNullOrEmpty(extUserId)) throw new Exception("External user id is required");
-        var user = dbContext.Users.FirstOrDefault(x => x.ExternalId == extUserId);
-        if (user == null) throw new Exception("User not found");
         var metaDataEntities = new List<UserMetaData>();
         createUserMetaDataDto.ForEach(cUserMetaDataDto =>
         {
             var userMetaDataEntity = new UserMetaData
             {
-                UserId = user.Id,
+                UserId = CurrentUser.UserId,
                 CreatedUtc = cUserMetaDataDto.CreatedUtc,
                 Location = cUserMetaDataDto.Location == null
                     ? null

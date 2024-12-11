@@ -5,7 +5,7 @@ using net.mstoegerer.TaskNest.Api.Domain.DTOs;
 
 namespace net.mstoegerer.TaskNest.Api.Presentation.Controllers;
 
-public class TodoController(TodoService todoService) : ApiBaseController
+public class TodoController(TodoService todoService, ILogger<TodoController> logger) : ApiBaseController
 {
     [HttpGet("{id:guid}")]
     [Authorize]
@@ -19,7 +19,15 @@ public class TodoController(TodoService todoService) : ApiBaseController
     [Authorize]
     public async Task<IActionResult> GetAll()
     {
-        var res = await todoService.GetTodosAsync(ExternalUserId);
+        var res = await todoService.GetTodosAsync();
+        return Ok(res);
+    }
+
+    [HttpGet("{id:guid}/attachment")]
+    [Authorize]
+    public async Task<IActionResult> GetAttachments(Guid id)
+    {
+        var res = await todoService.GetAttachmentsAsync(id);
         return Ok(res);
     }
 
@@ -27,8 +35,8 @@ public class TodoController(TodoService todoService) : ApiBaseController
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateTodoDto todoDto)
     {
-        var res = await todoService.CreateTodoAsync(ExternalUserId, todoDto);
-        return Ok(res);
+        var res = await todoService.CreateTodoAsync(todoDto);
+        return Created();
     }
 
     [HttpDelete("{id:guid}")]
@@ -42,6 +50,6 @@ public class TodoController(TodoService todoService) : ApiBaseController
     public async Task<IActionResult> Shared([FromBody] TodoShareDto todoShareDto)
     {
         await todoService.ShareTodoAsync(todoShareDto);
-        return Ok();
+        return Created();
     }
 }

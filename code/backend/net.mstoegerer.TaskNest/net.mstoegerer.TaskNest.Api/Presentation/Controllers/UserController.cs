@@ -9,7 +9,7 @@ public class UserController(UserService userService) : ApiBaseController
 {
     [HttpGet]
     /*[Authorize]*/
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+    public async Task<ActionResult> GetUsers()
     {
         var users = await userService.GetUsersAsync();
         return Ok(users);
@@ -20,6 +20,13 @@ public class UserController(UserService userService) : ApiBaseController
     public async Task<IActionResult> RegisterUser([FromBody] CreateUserDto createUserDto)
     {
         await userService.AddUserAsync(createUserDto);
-        return Ok();
+        return Created();
+    }
+
+    [HttpGet("{email}:string")]
+    public async Task<ActionResult<Guid>> GetUserByEmail(string email)
+    {
+        var userId = await userService.GetUserByEmailAsync(email);
+        return Ok(userId);
     }
 }

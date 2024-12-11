@@ -6,6 +6,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface ILocationBackendService {
-    @POST("api/evil")
+    @POST("api/ping")
     fun postLocations(@Body locations: List<LocationDto>): Call<Void>
 }

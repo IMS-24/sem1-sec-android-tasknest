@@ -5,6 +5,7 @@ using net.mstoegerer.TaskNest.Api.Domain.Configs;
 using net.mstoegerer.TaskNest.Api.Infrastructure;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Extensions;
 using net.mstoegerer.TaskNest.Api.Presentation.Extensions;
+using net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 using Serilog;
 
 const bool seed = false;
@@ -49,7 +50,7 @@ builder.Services.AddHttpLogging(o =>
 builder.Services.AddApiKey(auth0Config);
 var app = builder.Build();
 
-// app.UseCurrentUserMiddleware();
+app.UseCurrentUserMiddleware();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

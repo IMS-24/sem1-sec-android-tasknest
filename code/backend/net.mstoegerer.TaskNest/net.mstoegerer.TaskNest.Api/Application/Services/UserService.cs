@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using net.mstoegerer.TaskNest.Api.Domain.DTOs;
 using net.mstoegerer.TaskNest.Api.Domain.Entities;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Context;
@@ -6,6 +7,12 @@ namespace net.mstoegerer.TaskNest.Api.Application.Services;
 
 public class UserService(ApplicationDbContext dbContext)
 {
+    public async Task<Guid> GetUserByEmailAsync(string email)
+    {
+        var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
+        return user?.Id ?? Guid.Empty;
+    }
+
     public Task<IEnumerable<UserDto>> GetUsersAsync()
     {
         return Task.FromResult<IEnumerable<UserDto>>(dbContext.Users.Select(x => new UserDto
