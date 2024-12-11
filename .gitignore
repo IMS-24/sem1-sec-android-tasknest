@@ -41,7 +41,7 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
-
+*/**/appsettings.Local.json
 # temp directory
 .temp
 .tmp
