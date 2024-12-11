@@ -42,7 +42,7 @@ public class TodoService(ApplicationDbContext dbContext)
         var todo = new Todo
         {
             Id = Guid.NewGuid(),
-            DueUtc = todoDto.DuetUtc,
+            DueUtc = todoDto.DueUtc,
             Title = todoDto.Title,
             Content = todoDto.Content,
             CreatedUtc = DateTime.UtcNow,
