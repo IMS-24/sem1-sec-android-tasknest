@@ -26,8 +26,8 @@ public class AttachmentService(ApplicationDbContext dbContext)
             Size = attachmentDto.Data.Length,
             TodoId = attachmentDto.TodoId,
             UploadedById = CurrentUser.UserId,
-            CreatedUtc = attachmentDto.CreatedUtc,
-            UpdatedUtc = attachmentDto.UpdatedUtc
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow
         };
         dbContext.Attachments.Add(attachment);
         await dbContext.SaveChangesAsync();

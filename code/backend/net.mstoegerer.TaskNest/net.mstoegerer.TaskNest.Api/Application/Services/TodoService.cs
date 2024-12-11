@@ -45,8 +45,8 @@ public class TodoService(ApplicationDbContext dbContext)
             DueUtc = todoDto.DuetUtc,
             Title = todoDto.Title,
             Content = todoDto.Content,
-            CreatedUtc = todoDto.CreatedUtc,
-            UpdatedUtc = todoDto.UpdatedUtc,
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
             Status = todoDto.Status,
             AssignedToId = todoDto.AssignedToId ?? CurrentUser.UserId,
             Location = todoDto.Location == null
@@ -61,8 +61,8 @@ public class TodoService(ApplicationDbContext dbContext)
                     FileName = x.FileName,
                     Name = x.Name,
                     UploadedById = CurrentUser.UserId,
-                    UpdatedUtc = x.UpdatedUtc,
-                    CreatedUtc = x.CreatedUtc,
+                    UpdatedUtc = DateTime.UtcNow,
+                    CreatedUtc = DateTime.UtcNow,
                     Size = x.Data.Length
                 }).ToList()
         };
