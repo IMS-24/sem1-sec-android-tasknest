@@ -104,6 +104,7 @@ public class TodoService(ApplicationDbContext dbContext)
                 : PointDto.FromPoint(todo.Location),
             UserId = todo.UserId,
             DueUtc = todo.DueUtc,
+            HasAttachment = todo.Attachments.Count != 0,
             Attachments = todo.Attachments
                 .Select(x => new AttachmentDto
                 {
@@ -157,14 +158,7 @@ public class TodoService(ApplicationDbContext dbContext)
                 ? null
                 : PointDto.FromPoint(todo.Location),
             UserId = todo.UserId,
-            Attachments = todo.Attachments
-                .Select(x => new AttachmentDto
-                {
-                    Data = x.Data,
-                    ContentType = x.ContentType,
-                    Name = x.Name
-                })
-                .ToList()
+            HasAttachment = todo.Attachments.Count != 0
         }).ToListAsync();
         return res;
     }
