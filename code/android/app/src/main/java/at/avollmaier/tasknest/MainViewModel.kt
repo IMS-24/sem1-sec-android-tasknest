@@ -22,8 +22,8 @@ class MainViewModel : ViewModel() {
                     Log.d("MainViewModel", "Error: $error")
                 },
                 onSuccess = { result ->
-                    _userIsAuthenticated.value = true
                     user = result
+                    _userIsAuthenticated.value = true
                 },
                 context = context
             )

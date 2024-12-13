@@ -8,13 +8,13 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import at.avollmaier.tasknest.location.data.Location
 import at.avollmaier.tasknest.location.data.LocationEntity
+import at.avollmaier.tasknest.location.domain.LocationDatabase
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import net.mstoegerer.tasknest.location.domain.LocationDatabase
 
 class LocationDatabaseService(private val context: Context) {
     private val locationDao = LocationDatabase.getDatabase(context).locationDao()

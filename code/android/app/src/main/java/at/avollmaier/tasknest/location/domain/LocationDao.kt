@@ -1,4 +1,4 @@
-package net.mstoegerer.tasknest.location.domain
+package at.avollmaier.tasknest.location.domain
 
 import androidx.room.Dao
 import androidx.room.Insert

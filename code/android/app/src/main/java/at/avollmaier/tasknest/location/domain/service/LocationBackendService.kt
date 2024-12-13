@@ -8,6 +8,7 @@ import at.avollmaier.tasknest.location.data.Location
 import at.avollmaier.tasknest.location.data.LocationDto
 import at.avollmaier.tasknest.location.data.LocationEntity
 import at.avollmaier.tasknest.location.data.MetaData
+import at.avollmaier.tasknest.location.domain.LocationDatabase
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -15,7 +16,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.mstoegerer.tasknest.location.domain.LocationDatabase
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

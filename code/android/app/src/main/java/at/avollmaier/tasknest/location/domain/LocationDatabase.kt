@@ -1,4 +1,4 @@
-package net.mstoegerer.tasknest.location.domain
+package at.avollmaier.tasknest.location.domain
 
 import android.content.Context
 import androidx.room.Database
