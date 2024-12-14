@@ -2,7 +2,6 @@ package at.avollmaier.tasknest.ui.screens.profile
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,8 +68,7 @@ fun ProfileScreen(
                 Box(
                     modifier = Modifier
                         .size(140.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .clip(CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -87,20 +85,18 @@ fun ProfileScreen(
                 Text(
                     text = user.name ?: "Anonymous User",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Text(
                     text = user.email ?: "Email not available",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline)
+                HorizontalDivider(thickness = 1.dp)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Column(
@@ -172,7 +168,6 @@ fun InfoRow(icon: ImageVector, label: String, value: String?) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
@@ -180,12 +175,10 @@ fun InfoRow(icon: ImageVector, label: String, value: String?) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = value ?: "Not available",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

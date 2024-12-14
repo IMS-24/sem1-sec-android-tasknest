@@ -125,7 +125,7 @@ fun GoogleMapView(
 
                     googleMap.addMarker(markerOptions)?.tag = todo
 
-                    if (todo.status != TodoStatus.DONE) {
+                    if (todo.status == TodoStatus.NEW) {
                         googleMap.addCircle(
                             com.google.android.gms.maps.model.CircleOptions()
                                 .center(point)
@@ -228,7 +228,7 @@ fun TodoDetailDialog(
                     remainingDays == 0L -> "Due today!"
                     else -> "Due in $remainingDays day(s)"
                 }
-                if (todo.status != TodoStatus.DONE) {
+                if (todo.status == TodoStatus.NEW) {
 
                     Text(
                         text = dueText,

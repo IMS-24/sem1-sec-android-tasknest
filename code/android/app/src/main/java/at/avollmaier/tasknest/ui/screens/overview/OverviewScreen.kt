@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -95,8 +96,7 @@ fun OverviewScreen(
             },
         ) {
             Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
+                modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Column(
@@ -168,28 +168,21 @@ fun Dropdown(viewModel: OverviewViewModel) {
 
     Box {
         IconButton(onClick = { expanded = true }) {
-            Icons.Filled.MoreVert
+            Icon(Icons.Filled.MoreVert, contentDescription = "Dropdown Menu")
+
+
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text(text = "Add Todo") },
-                onClick = {
-                    expanded = false
-                    showDialog = true
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(text = { Text(text = "Add Todo") }, onClick = {
+                expanded = false
+                showDialog = true
+            })
+            DropdownMenuItem(text = { Text(text = "Refresh") }, onClick = {
+                expanded = false
+                coroutineScope.launch {
+                    viewModel.refreshTodos()
                 }
-            )
-            DropdownMenuItem(
-                text = { Text(text = "Refresh") },
-                onClick = {
-                    expanded = false
-                    coroutineScope.launch {
-                        viewModel.refreshTodos()
-                    }
-                }
-            )
+            })
         }
     }
 
@@ -197,6 +190,7 @@ fun Dropdown(viewModel: OverviewViewModel) {
         AddTodoDialog(onDismiss = { showDialog = false }, viewModel = viewModel)
     }
 }
+
 @Composable
 fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
     var title by remember { mutableStateOf("") }
@@ -226,22 +220,19 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                TextField(value = title, onValueChange = {
+                    if (it.length <= 50) title = it
+
+                }, label = { Text("Title") }, modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = content,
-                    onValueChange = { content = it },
-                    label = { Text("Content") },
-                    modifier = Modifier.fillMaxWidth()
+                TextField(value = content, onValueChange = {
+                    if (it.length <= 50) content = it
+
+                }, label = { Text("Content") }, modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = dueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                TextField(value = dueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                     onValueChange = {},
                     label = { Text("Due Date & Time") },
                     modifier = Modifier.fillMaxWidth(),
@@ -257,11 +248,7 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                                         { _, hour, minute ->
                                             dueDate = ZonedDateTime.of(
                                                 LocalDateTime.of(
-                                                    year,
-                                                    month + 1,
-                                                    dayOfMonth,
-                                                    hour,
-                                                    minute
+                                                    year, month + 1, dayOfMonth, hour, minute
                                                 ), ZoneId.systemDefault()
                                             )
                                         },
@@ -277,13 +264,11 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                         }) {
                             Icon(Icons.Filled.AccessTime, contentDescription = "Access Time")
                         }
-                    }
-                )
+                    })
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = {
                     val intent = Intent(
-                        Intent.ACTION_OPEN_DOCUMENT,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                     ).apply {
                         addCategory(Intent.CATEGORY_OPENABLE)
                     }
@@ -299,8 +284,7 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
+                    horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()
                 ) {
                     Button(onClick = { onDismiss() }) {
                         Text("Cancel")
@@ -316,8 +300,7 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                                 attachments = attachments
                             )
                             onDismiss()
-                        },
-                        enabled = title.isNotBlank() && content.isNotBlank()
+                        }, enabled = title.isNotBlank() && content.isNotBlank()
                     ) {
                         Text("Add")
                     }
@@ -344,29 +327,32 @@ fun TodoCard(todo: FetchTodoDto, viewModel: OverviewViewModel) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(
-                checked = isChecked,
-                onCheckedChange = {
-                    isChecked = it
-                    viewModel.finishTodo(todo)
-                }
-            )
+            Checkbox(checked = isChecked, onCheckedChange = {
+                isChecked = it
+                viewModel.finishTodo(todo)
+            })
             Spacer(modifier = Modifier.width(4.dp))
             Column {
                 Text(
+                    overflow = TextOverflow.Ellipsis,
                     text = todo.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
                 )
                 Row(
-
-
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         text = todo.content,
                         style = MaterialTheme.typography.bodySmall
                     )
-                    Spacer(modifier = Modifier.weight(1f))
 
                     val remainingDays = ChronoUnit.DAYS.between(LocalDate.now(), todo.dueUtc)
                     val dueText = when {
@@ -374,9 +360,9 @@ fun TodoCard(todo: FetchTodoDto, viewModel: OverviewViewModel) {
                         remainingDays == 0L -> "Due today!"
                         else -> "Due in $remainingDays day(s)"
                     }
-                    if (todo.status != TodoStatus.DONE) {
-
+                    if (todo.status == TodoStatus.NEW) {
                         Text(
+                            maxLines = 1,
                             text = dueText,
                             style = MaterialTheme.typography.bodySmall,
                             color = when {
@@ -385,9 +371,7 @@ fun TodoCard(todo: FetchTodoDto, viewModel: OverviewViewModel) {
                                 else -> MaterialTheme.colorScheme.primary
                             }
                         )
-
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
 
             }
@@ -398,8 +382,7 @@ fun TodoCard(todo: FetchTodoDto, viewModel: OverviewViewModel) {
 @Composable
 fun EmptyTodoState() {
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally

@@ -1,9 +1,9 @@
 package at.avollmaier.tasknest.location.data
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 data class LocationDto(
-    val createdUtc: LocalDateTime,
+    val createdUtc: ZonedDateTime,
     val metaData: List<MetaData>,
     val location: Location
 )

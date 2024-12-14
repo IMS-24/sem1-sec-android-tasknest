@@ -70,9 +70,7 @@ fun BottomNavigationBar(authProvider: AuthProvider, user: User) {
                 MapScreen()
             }
             composable(Screens.Team.route) {
-                TeamScreen(
-                    navController
-                )
+                TeamScreen()
             }
             composable(Screens.Profile.route) {
                 ProfileScreen(

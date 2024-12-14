@@ -2,28 +2,18 @@ package at.avollmaier.tasknest.location.domain.service
 
 import android.content.Context
 import android.util.Log
-import at.avollmaier.tasknest.R
-import at.avollmaier.tasknest.auth.domain.config.AccessTokenInterceptor
+import at.avollmaier.tasknest.common.NetworkUtils
 import at.avollmaier.tasknest.location.data.Location
 import at.avollmaier.tasknest.location.data.LocationDto
 import at.avollmaier.tasknest.location.data.LocationEntity
 import at.avollmaier.tasknest.location.data.MetaData
 import at.avollmaier.tasknest.location.domain.LocationDatabase
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.jackson.JacksonConverterFactory
 import java.time.Instant
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.TimeZone
-import java.util.concurrent.TimeUnit
 
 
 class LocationBackendService(context: Context) {
@@ -31,29 +21,9 @@ class LocationBackendService(context: Context) {
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
 
-    private val objectMapper = ObjectMapper().apply {
+    private val api: ILocationBackendService =
+        NetworkUtils.provideRetrofit(context).create(ILocationBackendService::class.java)
 
-        registerModule(JavaTimeModule())
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-    }
-    private val retrofit: Retrofit =
-        Retrofit.Builder().baseUrl(context.getString(R.string.backend_url))
-            .client(provideAccessOkHttpClient(AccessTokenInterceptor(context)))
-            .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-            .build()
-
-    private val api: ILocationBackendService = retrofit.create(ILocationBackendService::class.java)
-
-    private fun provideAccessOkHttpClient(
-        accessTokenInterceptor: AccessTokenInterceptor
-    ): OkHttpClient {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        return OkHttpClient.Builder().addInterceptor(accessTokenInterceptor)
-            .addInterceptor(loggingInterceptor).connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS).writeTimeout(30, TimeUnit.SECONDS).build()
-    }
 
     suspend fun publishOfflinePersistedLocations() {
         val offlineLocations = locationDao.getAndMarkPersisted()
@@ -83,7 +53,7 @@ class LocationBackendService(context: Context) {
     ): List<LocationDto> {
         return locationEntities.map { locationEntity ->
             LocationDto(
-                createdUtc = LocalDateTime.ofInstant(
+                createdUtc = ZonedDateTime.ofInstant(
                     Instant.ofEpochMilli(
                         locationEntity.timestamp
                     ), TimeZone.getDefault().toZoneId()

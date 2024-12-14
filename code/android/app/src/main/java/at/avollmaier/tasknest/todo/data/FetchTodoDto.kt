@@ -2,7 +2,7 @@ package at.avollmaier.tasknest.todo.data
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 data class FetchTodoDto @JsonCreator constructor(
@@ -11,5 +11,6 @@ data class FetchTodoDto @JsonCreator constructor(
     @JsonProperty("content") val content: String,
     @JsonProperty("status") val status: TodoStatus,
     @JsonProperty("location") val location: PointDto,
-    @JsonProperty("dueUtc") val dueUtc: LocalDateTime
+    @JsonProperty("dueUtc") val dueUtc: ZonedDateTime,
+    @JsonProperty("assignedToId") val assignedToId: UUID,
 )

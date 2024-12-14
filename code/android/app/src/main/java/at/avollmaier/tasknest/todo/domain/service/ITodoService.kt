@@ -2,6 +2,7 @@ package at.avollmaier.tasknest.todo.domain.service
 
 import at.avollmaier.tasknest.todo.data.CreateTodoDto
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
+import at.avollmaier.tasknest.todo.data.ShareTodoDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -26,4 +27,7 @@ interface ITodoService {
 
     @DELETE("api/todo/{id}")
     fun deleteTodo(@Path("id") id: UUID): Call<Void>
+
+    @POST("api/todo/share")
+    fun shareTodoWithUser(@Body shareTodoDto: ShareTodoDto): Call<Void>
 }
