@@ -1,8 +1,12 @@
 package at.avollmaier.tasknest.location.domain.worker
 
-import at.avollmaier.tasknest.location.domain.service.LocationDatabaseService
 import android.content.Context
-import androidx.work.*
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
+import at.avollmaier.tasknest.location.domain.service.LocationDatabaseService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -17,14 +21,13 @@ class LocationCoroutineWorker(
             val locationDatabaseService = LocationDatabaseService(applicationContext)
             locationDatabaseService.fetchAndStoreCurrentLocation()
 
-            // Schedule the next work
             val nextWorkRequest = OneTimeWorkRequestBuilder<LocationCoroutineWorker>()
                 .setInitialDelay(10, TimeUnit.SECONDS)
                 .build()
 
             WorkManager.getInstance(applicationContext).enqueueUniqueWork(
                 "LocationCoroutineWorker",
-                ExistingWorkPolicy.REPLACE,
+                ExistingWorkPolicy.APPEND,
                 nextWorkRequest
             )
 

@@ -13,7 +13,6 @@ class ZonedDateTimeToUtcSerializer : JsonSerializer<ZonedDateTime>() {
         gen: JsonGenerator,
         serializers: SerializerProvider
     ) {
-        // Convert ZonedDateTime to UTC and format it
         val utcDateTime = value.withZoneSameInstant(ZoneOffset.UTC)
         gen.writeString(utcDateTime.format(DateTimeFormatter.ISO_DATE_TIME))
     }

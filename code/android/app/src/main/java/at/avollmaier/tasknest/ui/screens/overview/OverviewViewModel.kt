@@ -1,5 +1,4 @@
-// TodayViewModel.kt
-package at.avollmaier.tasknest.ui.screens.today
+package at.avollmaier.tasknest.ui.screens.overview
 
 import android.content.Context
 import android.net.Uri
@@ -18,8 +17,7 @@ import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.util.UUID
 
-// TodayViewModel.kt
-class TodayViewModel(private val todoService: TodoService, context: Context) : ViewModel() {
+class OverviewViewModel(private val todoService: TodoService) : ViewModel() {
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
 
@@ -52,7 +50,7 @@ class TodayViewModel(private val todoService: TodoService, context: Context) : V
         content: String,
         dueDateTime: ZonedDateTime,
         context: Context,
-        attachments: MutableList<Uri>
+        attachments: List<Uri>
     ) {
         viewModelScope.launch {
             val location = LocationDatabaseService(context).getCurrentLocation()

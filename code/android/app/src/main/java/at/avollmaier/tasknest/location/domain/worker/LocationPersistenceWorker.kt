@@ -1,13 +1,15 @@
 package at.avollmaier.tasknest.location.domain.worker
 
 import android.content.Context
-import androidx.work.*
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
+import at.avollmaier.tasknest.location.domain.service.LocationBackendService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import at.avollmaier.tasknest.location.domain.service.LocationBackendService
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.MINUTES
-import java.util.concurrent.TimeUnit.SECONDS
 
 class LocationPersistenceWorker(
     context: Context,
@@ -18,14 +20,13 @@ class LocationPersistenceWorker(
         return withContext(Dispatchers.IO) {
             val locationBackendService = LocationBackendService(applicationContext)
 
-            // Schedule the next work
             val nextWorkRequest = OneTimeWorkRequestBuilder<LocationPersistenceWorker>()
-                .setInitialDelay(1, TimeUnit.MINUTES)
+                .setInitialDelay(1, MINUTES)
                 .build()
 
             WorkManager.getInstance(applicationContext).enqueueUniqueWork(
                 "LocationPersistenceCoroutineWorker",
-                ExistingWorkPolicy.REPLACE,
+                ExistingWorkPolicy.APPEND,
                 nextWorkRequest
             )
 

@@ -16,9 +16,9 @@ data class BottomNavigationItem(
     fun bottomNavigationItems(): List<BottomNavigationItem> {
         return listOf(
             BottomNavigationItem(
-                label = "Today",
+                label = "Overview",
                 icon = Icons.Filled.DateRange,
-                route = Screens.Today.route
+                route = Screens.Overview.route
             ),
             BottomNavigationItem(
                 label = "Map",
