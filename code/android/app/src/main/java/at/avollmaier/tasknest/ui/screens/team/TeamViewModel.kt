@@ -24,8 +24,12 @@ class TeamViewModel(
     private val _users = MutableStateFlow<List<ExternalUserDto>>(emptyList())
     val users: StateFlow<List<ExternalUserDto>> = _users
 
+    private val _share = MutableStateFlow<List<ShareTodoDto>>(emptyList())
+    val share: StateFlow<List<ShareTodoDto>> = _share
+
     init {
         fetchTodos()
+
     }
 
 
@@ -38,8 +42,20 @@ class TeamViewModel(
             todoService.getTodos { fetchedTodos ->
                 fetchedTodos?.let {
                     _todos.value = filterActiveTodos(fetchedTodos)
-                    fetchUsers()
+                    fetchTodoShareInfo()
 
+                }
+            }
+
+        }
+    }
+
+    private fun fetchTodoShareInfo() {
+        viewModelScope.launch {
+            todoService.getTodoShareInfo { info ->
+                info?.let {
+                    _share.value = info
+                    fetchUsers()
                 }
             }
 
@@ -49,8 +65,10 @@ class TeamViewModel(
     private fun getTeamMembersFromTodos(todos: List<FetchTodoDto>): List<UUID> {
         val teamMembers = mutableListOf<UUID>()
         todos.forEach { todo ->
-            if (!teamMembers.contains(todo.assignedToId)) {
-                teamMembers.add(todo.assignedToId)
+            _share.value.forEach { share ->
+                if (share.todoId == todo.id) {
+                    teamMembers.addAll(share.sharedWithId)
+                }
             }
         }
         return teamMembers
@@ -75,7 +93,7 @@ class TeamViewModel(
 
     fun shareTodoWithUser(selectedTodoId: UUID, userIdToShare: UUID) {
         viewModelScope.launch {
-            val shareTodoDto = ShareTodoDto(selectedTodoId, userIdToShare)
+            val shareTodoDto = ShareTodoDto(selectedTodoId, emptyList())
             todoService.shareTodoWithUser(shareTodoDto)
         }
     }

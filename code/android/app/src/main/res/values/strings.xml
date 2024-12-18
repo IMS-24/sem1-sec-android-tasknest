@@ -7,4 +7,5 @@
     <string name="com_auth0_domain">tasknest.eu.auth0.com</string>
     <string name="com_auth0_scheme">tasknest</string>
     <string name="backend_url">https://api-tasknest.mstoegerer.net/</string>
+    <string name="todo_location_radius">500</string>
 </resources>
