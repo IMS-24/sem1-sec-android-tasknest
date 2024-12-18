@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,13 +53,15 @@ fun MapScreen(
 ) {
     var mapSelectedTodo by remember { mutableStateOf<FetchTodoDto?>(null) }
     val todos by viewModel.todos.collectAsState()
+    val markersAdded by viewModel.markersAdded.collectAsState()
 
     TaskNestTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            GoogleMapView(viewModel.getLatLngPair(todos)) { selectedTodo ->
+
+            GoogleMapView(viewModel, viewModel.getLatLngPair(todos), markersAdded) { selectedTodo ->
                 mapSelectedTodo = selectedTodo
             }
 
@@ -71,23 +74,26 @@ fun MapScreen(
     }
 }
 
-private const val LOCATION_DONE_RADIUS = 250.0
-
 @SuppressLint("PotentialBehaviorOverride")
 @Composable
 fun GoogleMapView(
+    viewModel: MapViewModel,
     locationPoints: List<Pair<LatLng, FetchTodoDto>>,
+    markersAdded: Boolean,
     onMarkerClick: (FetchTodoDto) -> Unit
 ) {
     val mapView = rememberMapViewWithLifecycle()
-    val markersAdded =
-        remember { mutableStateOf(false) }
+
+    LaunchedEffect(mapView) {
+        viewModel.fetchTodos()
+    }
 
     AndroidView({ mapView }) { mapView ->
         mapView.getMapAsync { googleMap ->
             googleMap.uiSettings.isZoomControlsEnabled = true
 
-            if (locationPoints.isNotEmpty() && !markersAdded.value) {
+            if (locationPoints.isNotEmpty() && !markersAdded) {
+                googleMap.clear()
                 locationPoints.firstOrNull { value -> value.second.status == TodoStatus.NEW }?.let {
                     googleMap.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
@@ -97,11 +103,10 @@ fun GoogleMapView(
                     )
                 }
 
-
                 locationPoints.forEach { (point, todo) ->
                     val markerOptions = MarkerOptions()
                         .position(point)
-                        .alpha(if (todo.status == TodoStatus.DONE) 0.3f else 1.0f) // Transparency for Done
+                        .alpha(if (todo.status == TodoStatus.DONE) 0.3f else 1.0f)
                         .icon(
                             if (todo.status == TodoStatus.DONE) {
                                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
@@ -116,16 +121,17 @@ fun GoogleMapView(
                         googleMap.addCircle(
                             com.google.android.gms.maps.model.CircleOptions()
                                 .center(point)
-                                .radius(LOCATION_DONE_RADIUS)
+                                .radius(200.0)
                                 .strokeWidth(2f)
                                 .strokeColor(android.graphics.Color.RED)
                                 .fillColor(Color.Red.copy(alpha = 0.3f).toArgb())
                         )
                     }
                 }
-                markersAdded.value = true
-            }
 
+                viewModel.setMarkersAdded(true)
+
+            }
 
             googleMap.setOnMarkerClickListener { marker ->
                 val selectedTodo = marker.tag as? FetchTodoDto
@@ -135,7 +141,6 @@ fun GoogleMapView(
         }
     }
 }
-
 
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
@@ -178,7 +183,6 @@ fun TodoDetailDialog(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Surface(

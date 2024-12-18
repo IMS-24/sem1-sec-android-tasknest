@@ -71,6 +71,7 @@ dependencies {
 
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.accompanist.permissions)
+    implementation(libs.places)
     androidTestImplementation(libs.androidx.work.testing)
     implementation(libs.androidx.work.multiprocess)
     implementation(libs.androidx.room.runtime)
