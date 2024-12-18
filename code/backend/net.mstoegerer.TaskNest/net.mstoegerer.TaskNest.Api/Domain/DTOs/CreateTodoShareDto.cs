@@ -1,8 +1,7 @@
 namespace net.mstoegerer.TaskNest.Api.Domain.DTOs;
 
-public class TodoShareDto
+public class CreateTodoShareDto
 {
-    public Guid Id { get; set; }
-    public TodoDto Todo { get; set; } = null!;
+    public Guid TodoId { get; set; }
     public List<Guid> SharedWithIds { get; set; } = [];
 }

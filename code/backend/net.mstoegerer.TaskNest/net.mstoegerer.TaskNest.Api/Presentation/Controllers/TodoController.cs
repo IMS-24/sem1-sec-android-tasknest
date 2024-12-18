@@ -24,6 +24,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     }
 
     [HttpPut("{id:guid}/done")]
+    [Authorize]
     public async Task<IActionResult> ToggleDoneAsync(Guid id)
     {
         await todoService.ToggleDoneAsync(id);
@@ -31,6 +32,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     }
 
     [HttpPut("{id:guid}/cancel")]
+    [Authorize]
     public async Task<IActionResult> CancelTodoAsync(Guid id)
     {
         await todoService.MarkTodoAsCancelledAsync(id);
@@ -54,6 +56,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize]
     public async Task<IActionResult> Delete(Guid id)
     {
         await todoService.DeleteTodoAsync(id);
@@ -61,9 +64,18 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     }
 
     [HttpPost("share")]
-    public async Task<IActionResult> Shared([FromBody] TodoShareDto todoShareDto)
+    [Authorize]
+    public async Task<IActionResult> Share([FromBody] CreateTodoShareDto todoShareDto)
     {
         await todoService.ShareTodoAsync(todoShareDto);
         return Created();
+    }
+
+    [HttpGet("share")]
+    [Authorize]
+    public async Task<IActionResult> GetShares()
+    {
+        var res = await todoService.GetShareTodoAsync();
+        return Ok(res);
     }
 }
