@@ -163,18 +163,58 @@ public class TodoService(ApplicationDbContext dbContext)
         return res;
     }
 
-    public async Task ShareTodoAsync(TodoShareDto todoShareDto)
+    public async Task ShareTodoAsync(CreateTodoShareDto todoShareDto)
     {
         var todo = dbContext.Todos.FirstOrDefault(x => x.Id == todoShareDto.TodoId);
         if (todo == null) throw new Exception("Todo not found");
-        var share = new TodoShare
+        todoShareDto.SharedWithIds.ForEach(sharedWithId =>
         {
-            Id = Guid.NewGuid(),
-            TodoId = todoShareDto.TodoId,
-            SharedById = todoShareDto.SharedById,
-            SharedWithId = todoShareDto.SharedWithId
-        };
-        dbContext.TodoShares.Add(share);
+            var share = new TodoShare
+            {
+                Id = Guid.NewGuid(),
+                TodoId = todoShareDto.TodoId,
+                SharedById = CurrentUser.UserId,
+                SharedWithId = sharedWithId
+            };
+            dbContext.TodoShares.Add(share);
+        });
         await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<List<TodoShareDto>> GetShareTodoAsync()
+    {
+        var shares = dbContext.TodoShares
+            .Include(share => share.Todo)
+            .ThenInclude(todo => todo.Attachments)
+            .Where(x => x.SharedById == CurrentUser.UserId);
+        if (!shares.Any()) throw new Exception("Shares not found");
+        var sharesDto = new List<TodoShareDto>();
+        await shares.ForEachAsync(share =>
+        {
+            if (sharesDto.Any(x => x.Id == share.Id)) return;
+            var shareDto = new TodoShareDto
+            {
+                Id = share.Id,
+                SharedWithIds = new List<Guid> { share.SharedWithId },
+                Todo = new TodoDto
+                {
+                    Id = share.Todo.Id,
+                    Title = share.Todo.Title,
+                    Content = share.Todo.Content,
+                    CreatedUtc = share.Todo.CreatedUtc,
+                    UpdatedUtc = share.Todo.UpdatedUtc,
+                    Status = share.Todo.Status,
+                    DueUtc = share.Todo.DueUtc,
+                    AssignedToId = share.Todo.AssignedToId,
+                    Location = share.Todo.Location == null
+                        ? null
+                        : PointDto.FromPoint(share.Todo.Location),
+                    UserId = share.Todo.UserId,
+                    HasAttachment = share.Todo.Attachments.Count != 0
+                }
+            };
+            sharesDto.Add(shareDto);
+        });
+        return sharesDto;
     }
 }
