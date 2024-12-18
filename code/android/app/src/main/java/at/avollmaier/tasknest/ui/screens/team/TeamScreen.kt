@@ -85,49 +85,65 @@ fun TeamScreen(
                             .fillMaxSize()
                             .align(Alignment.Center)
                     ) {
-                        Text(
-                            text = "Team Todo's",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold
-                        )
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(todos) { todo ->
-                                ShareTodoCard(todo, teamViewModel)
-                            }
-                        }
+                        TeamTodos(todos, teamViewModel)
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        Text(
-                            text = "My Team",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (users.isNotEmpty()) MyTeam(users)
 
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(users) { user ->
-                                UserCard(user)
-                            }
-                        }
                     }
                 }
             }
         }
 
 
+    }
+}
+
+@Composable
+fun MyTeam(
+    users: List<ExternalUserDto>
+) {
+
+    Text(
+        text = "My Team",
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold
+    )
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(users) { user ->
+            UserCard(user)
+        }
+    }
+}
+
+@Composable
+fun TeamTodos(
+    todos: List<FetchTodoDto>,
+    teamViewModel: TeamViewModel
+) {
+    Text(
+        text = "Team Todo's",
+        style = MaterialTheme.typography.headlineLarge,
+        fontWeight = FontWeight.Bold
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(todos) { todo ->
+            ShareTodoCard(todo, teamViewModel)
+        }
     }
 }
 
