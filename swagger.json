@@ -272,17 +272,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TodoShareDto"
+                "$ref": "#/components/schemas/CreateTodoShareDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/TodoShareDto"
+                "$ref": "#/components/schemas/CreateTodoShareDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/TodoShareDto"
+                "$ref": "#/components/schemas/CreateTodoShareDto"
               }
             }
           }
@@ -290,6 +290,42 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Todo"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TodoShareDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TodoShareDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TodoShareDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -382,6 +418,53 @@
   },
   "components": {
     "schemas": {
+      "AttachmentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uploadedById": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateAttachmentDto": {
         "type": "object",
         "properties": {
@@ -429,7 +512,7 @@
             "format": "uuid",
             "nullable": true
           },
-          "duetUtc": {
+          "dueUtc": {
             "type": "string",
             "format": "date-time",
             "nullable": true
@@ -441,6 +524,24 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreateAttachmentDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTodoShareDto": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
             },
             "nullable": true
           }
@@ -517,20 +618,85 @@
         },
         "additionalProperties": false
       },
+      "TodoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dueUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "assignedToId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "location": {
+            "$ref": "#/components/schemas/PointDto"
+          },
+          "hasAttachment": {
+            "type": "boolean"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "TodoShareDto": {
         "type": "object",
         "properties": {
-          "todoId": {
+          "id": {
             "type": "string",
             "format": "uuid"
           },
-          "sharedWithId": {
-            "type": "string",
-            "format": "uuid"
+          "sharedByMe": {
+            "type": "boolean"
           },
-          "sharedById": {
-            "type": "string",
-            "format": "uuid"
+          "sharedWithMe": {
+            "type": "boolean"
+          },
+          "todo": {
+            "$ref": "#/components/schemas/TodoDto"
+          },
+          "sharedWithIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false

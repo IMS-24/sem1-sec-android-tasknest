@@ -186,7 +186,7 @@ public class TodoService(ApplicationDbContext dbContext)
         var shares = dbContext.TodoShares
             .Include(share => share.Todo)
             .ThenInclude(todo => todo.Attachments)
-            .Where(x => x.SharedById == CurrentUser.UserId);
+            .Where(x => x.SharedById == CurrentUser.UserId || x.SharedWithId == CurrentUser.UserId);
         if (!shares.Any()) throw new Exception("Shares not found");
         var sharesDto = new List<TodoShareDto>();
         await shares.ForEachAsync(share =>
@@ -195,6 +195,8 @@ public class TodoService(ApplicationDbContext dbContext)
             var shareDto = new TodoShareDto
             {
                 Id = share.Id,
+                SharedByMe = share.SharedById == CurrentUser.UserId,
+                SharedWithMe = share.SharedWithId == CurrentUser.UserId,
                 SharedWithIds = new List<Guid> { share.SharedWithId },
                 Todo = new TodoDto
                 {
