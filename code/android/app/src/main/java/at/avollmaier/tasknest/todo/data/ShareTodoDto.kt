@@ -4,5 +4,5 @@ import java.util.UUID
 
 data class ShareTodoDto(
     var todoId: UUID,
-    var sharedWithId: UUID
+    var sharedWithId: List<UUID>
 )

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import at.avollmaier.tasknest.R
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.TodoStatus
 import at.avollmaier.tasknest.ui.screens.overview.TodoDueState
@@ -83,6 +84,8 @@ fun GoogleMapView(
     onMarkerClick: (FetchTodoDto) -> Unit
 ) {
     val mapView = rememberMapViewWithLifecycle()
+    val context = LocalContext.current
+
 
     LaunchedEffect(mapView) {
         viewModel.fetchTodos()
@@ -121,7 +124,10 @@ fun GoogleMapView(
                         googleMap.addCircle(
                             com.google.android.gms.maps.model.CircleOptions()
                                 .center(point)
-                                .radius(200.0)
+                                .radius(
+                                    context.resources.getString(R.string.todo_location_radius)
+                                        .toDouble()
+                                )
                                 .strokeWidth(2f)
                                 .strokeColor(android.graphics.Color.RED)
                                 .fillColor(Color.Red.copy(alpha = 0.3f).toArgb())

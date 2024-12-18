@@ -30,4 +30,7 @@ interface ITodoService {
 
     @POST("api/todo/share")
     fun shareTodoWithUser(@Body shareTodoDto: ShareTodoDto): Call<Void>
+
+    @GET("api/todo/share")
+    fun getSharedTodos(): Call<List<ShareTodoDto>>
 }

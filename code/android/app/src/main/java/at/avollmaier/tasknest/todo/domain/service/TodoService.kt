@@ -72,4 +72,12 @@ class TodoService(context: Context) {
             onError = { }
         )
     }
+
+    fun getTodoShareInfo(callback: (List<ShareTodoDto>?) -> Unit) {
+        makeApiCall(
+            apiCall = { api.getSharedTodos().execute() },
+            onSuccess = { callback(it) },
+            onError = { callback(null) }
+        )
+    }
 }

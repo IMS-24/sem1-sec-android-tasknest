@@ -12,5 +12,4 @@ data class FetchTodoDto @JsonCreator constructor(
     @JsonProperty("status") val status: TodoStatus,
     @JsonProperty("location") val location: PointDto,
     @JsonProperty("dueUtc") val dueUtc: ZonedDateTime,
-    @JsonProperty("assignedToId") val assignedToId: UUID,
 )
