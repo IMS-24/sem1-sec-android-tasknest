@@ -4,25 +4,30 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.avollmaier.tasknest.location.domain.service.LocationDatabaseService
+import at.avollmaier.tasknest.common.ManifestUtils
 import at.avollmaier.tasknest.todo.data.AttachmentDto
 import at.avollmaier.tasknest.todo.data.CreateTodoDto
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.PointDto
 import at.avollmaier.tasknest.todo.data.TodoStatus
 import at.avollmaier.tasknest.todo.domain.service.TodoService
+import com.google.android.libraries.places.api.Places
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.util.UUID
 
-class OverviewViewModel(private val todoService: TodoService) : ViewModel() {
+class OverviewViewModel(private val todoService: TodoService, context: Context) : ViewModel() {
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
 
 
     init {
+        val apiKey = ManifestUtils.getApiKeyFromManifest(context)
+        if (!Places.isInitialized() && apiKey != null) {
+            Places.initialize(context, apiKey)
+        }
         fetchTodos()
     }
 
@@ -50,10 +55,10 @@ class OverviewViewModel(private val todoService: TodoService) : ViewModel() {
         content: String,
         dueDateTime: ZonedDateTime,
         context: Context,
-        attachments: List<Uri>
+        attachments: List<Uri>,
+        location: PointDto
     ) {
         viewModelScope.launch {
-            val location = LocationDatabaseService(context).getCurrentLocation()
             val id = UUID.randomUUID()
 
             todoService.createTodo(
@@ -61,7 +66,7 @@ class OverviewViewModel(private val todoService: TodoService) : ViewModel() {
                     title = title,
                     content = content,
                     status = TodoStatus.NEW,
-                    location = PointDto(location.x, location.y),
+                    location = location,
                     dueUtc = dueDateTime,
                     attachments = handleFilePickerResult(context, id, attachments)
                 )

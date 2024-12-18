@@ -9,20 +9,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+
 class MapViewModel(private val todoService: TodoService) : ViewModel() {
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
+
+    private val _markersAdded = MutableStateFlow(false)
+    val markersAdded: StateFlow<Boolean> = _markersAdded
 
     init {
         fetchTodos()
     }
 
-
-    private fun fetchTodos() {
+    fun fetchTodos() {
         viewModelScope.launch {
             todoService.getTodos { fetchedTodos ->
                 fetchedTodos?.let {
                     _todos.value = it
+                    _markersAdded.value = false
                 }
             }
         }
@@ -35,4 +39,7 @@ class MapViewModel(private val todoService: TodoService) : ViewModel() {
         }
     }
 
+    fun setMarkersAdded(b: Boolean) {
+        _markersAdded.value = b
+    }
 }

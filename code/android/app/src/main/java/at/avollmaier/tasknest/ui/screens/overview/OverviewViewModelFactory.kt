@@ -8,7 +8,7 @@ import at.avollmaier.tasknest.todo.domain.service.TodoService
 class OverviewViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(OverviewViewModel::class.java)) {
-            return OverviewViewModel(TodoService(context)) as T
+            return OverviewViewModel(TodoService(context), context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

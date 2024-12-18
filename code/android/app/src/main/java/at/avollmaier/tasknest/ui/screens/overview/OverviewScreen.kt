@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,14 +55,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import at.avollmaier.tasknest.R
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
+import at.avollmaier.tasknest.todo.data.PointDto
 import at.avollmaier.tasknest.todo.data.TodoStatus
 import at.avollmaier.tasknest.ui.theme.TaskNestTheme
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -203,6 +212,7 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
     var dueDate by remember { mutableStateOf<ZonedDateTime>(ZonedDateTime.now() + Duration.ofDays(1L)) }
     var attachments by remember { mutableStateOf<List<Uri>>(emptyList()) }
     val context = LocalContext.current
+    var searchedLocation by remember { mutableStateOf<PointDto?>(null) }
 
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -227,15 +237,11 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(value = title, onValueChange = {
                     if (it.length <= 50) title = it
-
-                }, label = { Text("Title") }, modifier = Modifier.fillMaxWidth()
-                )
+                }, label = { Text("Title") }, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(value = content, onValueChange = {
                     if (it.length <= 50) content = it
-
-                }, label = { Text("Content") }, modifier = Modifier.fillMaxWidth()
-                )
+                }, label = { Text("Content") }, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(value = dueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                     onValueChange = {},
@@ -271,6 +277,12 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                         }
                     })
                 Spacer(modifier = Modifier.height(8.dp))
+                SearchBar(
+                    placesClient = Places.createClient(context),
+                    onPlaceSelected = { lat, lng ->
+                        searchedLocation = PointDto(x = lat, y = lng)
+                    })
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = {
                     val intent = Intent(
                         Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -297,15 +309,19 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            viewModel.addTodo(
-                                title,
-                                content,
-                                dueDate,
-                                context = context,
-                                attachments = attachments
-                            )
+                            searchedLocation?.let {
+                                viewModel.addTodo(
+                                    title,
+                                    content,
+                                    dueDate,
+                                    context = context,
+                                    attachments = attachments,
+                                    location = it
+                                )
+                            }
                             onDismiss()
-                        }, enabled = title.isNotBlank() && content.isNotBlank()
+                        },
+                        enabled = title.isNotBlank() && content.isNotBlank() && searchedLocation != null
                     ) {
                         Text("Add")
                     }
@@ -314,6 +330,103 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
         }
     }
 }
+
+@Composable
+fun SearchBar(
+    placesClient: PlacesClient,
+    onPlaceSelected: (Double, Double) -> Unit
+) {
+    var text by remember { mutableStateOf(TextFieldValue("")) }
+    var suggestions by remember { mutableStateOf(listOf<String>()) }
+
+    val sessionToken = remember { AutocompleteSessionToken.newInstance() }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            value = text,
+            singleLine = true,
+            onValueChange = { newText ->
+                text = newText
+                if (newText.text.isNotEmpty()) {
+                    val request = FindAutocompletePredictionsRequest.builder()
+                        .setSessionToken(sessionToken)
+                        .setQuery(newText.text)
+                        .build()
+
+                    placesClient.findAutocompletePredictions(request)
+                        .addOnSuccessListener { response ->
+                            suggestions = response.autocompletePredictions.map {
+                                it.getFullText(null).toString()
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            exception.printStackTrace()
+                        }
+                } else {
+                    suggestions = emptyList()
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            placeholder = {
+                Text("Search for a place", style = MaterialTheme.typography.bodyMedium)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        suggestions.take(5).forEach { suggestion ->
+            Text(
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                text = suggestion,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        text = TextFieldValue(suggestion)
+                        suggestions = emptyList()
+
+                        // Fetch the selected place details
+                        val request = FindAutocompletePredictionsRequest
+                            .builder()
+                            .setSessionToken(sessionToken)
+                            .setQuery(suggestion)
+                            .build()
+
+                        placesClient
+                            .findAutocompletePredictions(request)
+                            .addOnSuccessListener { response ->
+                                val placeId =
+                                    response.autocompletePredictions.firstOrNull()?.placeId
+                                if (placeId != null) {
+                                    val placeRequest = FetchPlaceRequest.newInstance(
+                                        placeId,
+                                        listOf(Place.Field.LOCATION)
+                                    )
+
+                                    placesClient
+                                        .fetchPlace(placeRequest)
+                                        .addOnSuccessListener { placeResponse ->
+                                            val latLng = placeResponse.place.location
+                                            if (latLng != null) {
+                                                onPlaceSelected(latLng.latitude, latLng.longitude)
+                                            }
+                                        }
+                                        .addOnFailureListener { fetchException ->
+                                            fetchException.printStackTrace()
+                                        }
+                                }
+                            }
+                            .addOnFailureListener { exception ->
+                                exception.printStackTrace()
+                            }
+                    }
+            )
+        }
+    }
+}
+
 
 @Composable
 fun TodoCard(todo: FetchTodoDto, viewModel: OverviewViewModel) {
