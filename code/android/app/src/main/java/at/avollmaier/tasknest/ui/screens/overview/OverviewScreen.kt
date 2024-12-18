@@ -105,28 +105,7 @@ fun OverviewScreen(
                             .fillMaxSize()
                             .align(Alignment.Center)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    text = "My Todo's",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "${todos.size} Todo(s)",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                            Dropdown(viewModel)
-                        }
+                        OverviewHeader(viewModel, todos.size)
                         Spacer(modifier = Modifier.height(16.dp))
                         LazyColumn(
                             modifier = Modifier.fillMaxSize()
@@ -157,6 +136,32 @@ fun OverviewScreen(
 
     if (showDialog) {
         AddTodoDialog(onDismiss = { showDialog = false }, viewModel = viewModel)
+    }
+}
+
+@Composable
+fun OverviewHeader(viewModel: OverviewViewModel, count: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "My Todo's",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "$count Todo(s)",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        Dropdown(viewModel)
     }
 }
 
@@ -354,24 +359,7 @@ fun TodoCard(todo: FetchTodoDto, viewModel: OverviewViewModel) {
                         style = MaterialTheme.typography.bodySmall
                     )
 
-                    val remainingDays = ChronoUnit.DAYS.between(LocalDate.now(), todo.dueUtc)
-                    val dueText = when {
-                        remainingDays < 0 -> "Overdue by ${-remainingDays} day(s)"
-                        remainingDays == 0L -> "Due today!"
-                        else -> "Due in $remainingDays day(s)"
-                    }
-                    if (todo.status == TodoStatus.NEW) {
-                        Text(
-                            maxLines = 1,
-                            text = dueText,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = when {
-                                remainingDays < 0 -> MaterialTheme.colorScheme.error
-                                remainingDays == 0L -> MaterialTheme.colorScheme.secondary
-                                else -> MaterialTheme.colorScheme.primary
-                            }
-                        )
-                    }
+                    TodoDueState(todo = todo)
                 }
 
             }
@@ -405,5 +393,27 @@ fun EmptyTodoState() {
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+    }
+}
+
+@Composable
+fun TodoDueState(todo: FetchTodoDto) {
+    val remainingDays = ChronoUnit.DAYS.between(LocalDate.now(), todo.dueUtc)
+    val dueText = when {
+        remainingDays < 0 -> "Overdue by ${-remainingDays} day(s)"
+        remainingDays == 0L -> "Due today!"
+        else -> "Due in $remainingDays day(s)"
+    }
+    if (todo.status == TodoStatus.NEW) {
+        Text(
+            maxLines = 1,
+            text = dueText,
+            style = MaterialTheme.typography.bodySmall,
+            color = when {
+                remainingDays < 0 -> MaterialTheme.colorScheme.error
+                remainingDays == 0L -> MaterialTheme.colorScheme.secondary
+                else -> MaterialTheme.colorScheme.primary
+            }
+        )
     }
 }

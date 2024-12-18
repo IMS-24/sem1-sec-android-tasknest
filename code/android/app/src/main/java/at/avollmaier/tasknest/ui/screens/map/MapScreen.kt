@@ -21,7 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,56 +35,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.TodoStatus
-import at.avollmaier.tasknest.todo.domain.service.TodoService
+import at.avollmaier.tasknest.ui.screens.overview.TodoDueState
 import at.avollmaier.tasknest.ui.theme.TaskNestTheme
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 @Composable
-fun MapScreen() {
-    val context = LocalContext.current
-    var todos by remember { mutableStateOf<List<FetchTodoDto>>(emptyList()) }
+fun MapScreen(
+    viewModel: MapViewModel = viewModel(factory = MapViewModelFactory(LocalContext.current))
+) {
     var mapSelectedTodo by remember { mutableStateOf<FetchTodoDto?>(null) }
-
-    LaunchedEffect(Unit) {
-        TodoService(context).getTodos { fetchedTodos ->
-            if (fetchedTodos != null) {
-                todos = fetchedTodos
-            }
-        }
-    }
-
-    val locationPoints = remember(todos) {
-        todos.map { todo ->
-            val point = LatLng(todo.location.x, todo.location.y)
-            Pair(point, todo)
-        }
-    }
+    val todos by viewModel.todos.collectAsState()
 
     TaskNestTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            GoogleMapView(locationPoints) { selectedTodo ->
+            GoogleMapView(viewModel.getLatLngPair(todos)) { selectedTodo ->
                 mapSelectedTodo = selectedTodo
             }
 
             mapSelectedTodo?.let { todo ->
                 TodoDetailDialog(todo = todo) {
-                    mapSelectedTodo = null // Dismiss dialog on close
+                    mapSelectedTodo = null
                 }
             }
         }
     }
 }
+
+private const val LOCATION_DONE_RADIUS = 250.0
 
 @SuppressLint("PotentialBehaviorOverride")
 @Composable
@@ -129,7 +116,7 @@ fun GoogleMapView(
                         googleMap.addCircle(
                             com.google.android.gms.maps.model.CircleOptions()
                                 .center(point)
-                                .radius(250.0)
+                                .radius(LOCATION_DONE_RADIUS)
                                 .strokeWidth(2f)
                                 .strokeColor(android.graphics.Color.RED)
                                 .fillColor(Color.Red.copy(alpha = 0.3f).toArgb())
@@ -208,39 +195,8 @@ fun TodoDetailDialog(
                     )
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = if (todo.status == TodoStatus.DONE) Icons.Default.CheckCircle else Icons.Default.Pending,
-                        contentDescription = null,
-                        tint = if (todo.status == TodoStatus.DONE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = if (todo.status == TodoStatus.DONE) "Completed!" else "Uncompleted...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                val remainingDays = ChronoUnit.DAYS.between(LocalDate.now(), todo.dueUtc)
-                val dueText = when {
-                    remainingDays < 0 -> "Overdue by ${-remainingDays} day(s)"
-                    remainingDays == 0L -> "Due today!"
-                    else -> "Due in $remainingDays day(s)"
-                }
-                if (todo.status == TodoStatus.NEW) {
-
-                    Text(
-                        text = dueText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = when {
-                            remainingDays < 0 -> MaterialTheme.colorScheme.error
-                            remainingDays == 0L -> MaterialTheme.colorScheme.secondary
-                            else -> MaterialTheme.colorScheme.primary
-                        }
-                    )
-
-                }
+                TodoDueStateText(todo = todo)
+                TodoDueState(todo = todo)
 
                 Button(
                     onClick = { onDismiss() },
@@ -254,5 +210,22 @@ fun TodoDetailDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun TodoDueStateText(todo: FetchTodoDto) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = if (todo.status == TodoStatus.DONE) Icons.Default.CheckCircle else Icons.Default.Pending,
+            contentDescription = null,
+            tint = if (todo.status == TodoStatus.DONE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = if (todo.status == TodoStatus.DONE) "Completed!" else "Uncompleted...",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
