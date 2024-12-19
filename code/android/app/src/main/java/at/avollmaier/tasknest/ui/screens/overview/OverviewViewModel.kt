@@ -20,7 +20,6 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 class OverviewViewModel(private val todoService: TodoService, context: Context) : ViewModel() {
-    private var totalTodos: Int = 0
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
     private val _hasNextPage = MutableStateFlow(false)
@@ -46,16 +45,12 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
         viewModelScope.launch {
             todoService.getTodos(pageIndex, pageSize) { todoPages ->
                 todoPages?.let {
-                    _todos.value += it.items
+                    val newTodos = it.items.filter { todo -> todo.status == TodoStatus.NEW }
+                    _todos.value += newTodos
                     _hasNextPage.value = it.hasNextPage
-                    totalTodos = it.totalCount
                 }
             }
         }
-    }
-
-    fun getTodosCount(): Int {
-        return totalTodos
     }
 
     fun addTodo(
@@ -89,6 +84,8 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
             val todoToUpdate = _todos.value.find { it.id == todo.id }
             todoToUpdate?.let {
                 todoService.finishTodo(it.id) {
+                    pageIndex = 0
+                    _todos.value = emptyList()
                     fetchTodos()
                 }
             }
