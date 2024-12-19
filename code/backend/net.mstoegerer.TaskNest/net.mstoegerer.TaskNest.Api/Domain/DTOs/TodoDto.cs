@@ -11,7 +11,7 @@ public class TodoDto
     public Guid UserId { get; set; }
     public DateTime? DueUtc { get; set; }
     public Guid AssignedToId { get; set; }
-    public PointDto? Location { get; set; }
+    public PointDto Location { get; set; } = null!;
     public bool HasAttachment { get; set; }
     public ICollection<AttachmentDto> Attachments { get; set; } = new HashSet<AttachmentDto>();
 }

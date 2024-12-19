@@ -376,11 +376,28 @@ public class SeedDataGenerator
                 Name = $"{firstName} {lName}",
                 Email = email
             }).ToList();
-
+        users.Add(new User
+        {
+            CreatedUtc = new DateTime(01, 01, 01).ToUniversalTime(),
+            UpdatedUtc = new DateTime(01, 01, 01).ToUniversalTime(),
+            Email = "pepe@mstoegerer.net",
+            Id = Guid.NewGuid(),
+            Name = "Lord Pepe",
+            ExternalId = "auth0|6750c29642a151293be3cb5f"
+        });
+        users.Add(new User
+        {
+            CreatedUtc = new DateTime(01, 01, 01).ToUniversalTime(),
+            UpdatedUtc = new DateTime(01, 01, 01).ToUniversalTime(),
+            Email = "alois.vollm@gmail.com",
+            Id = Guid.NewGuid(),
+            Name = "AIlois",
+            ExternalId = "google-oauth2|110065317277204435904"
+        });
 
         //output
         var sqlBuilder = new StringBuilder();
-        sqlBuilder.Append("INSERT INTO public.user (id, name, email, created_utc, updated_utc) VALUES ");
+        sqlBuilder.Append("INSERT INTO public.user (id, name, email, created_utc, updated_utc, external_id) VALUES ");
         foreach (var user in users)
         {
             _users.Add(user);
@@ -389,7 +406,8 @@ public class SeedDataGenerator
                 $"'{user.Name}', " +
                 $"'{user.Email}', " +
                 $"'{user.CreatedUtc:yyyy-MM-dd HH:mm:ssZ}', " +
-                $"'{user.UpdatedUtc:yyyy-MM-dd HH:mm:ssZ}'),\n");
+                $"'{user.UpdatedUtc:yyyy-MM-dd HH:mm:ssZ}'," +
+                $"'{user.ExternalId}'),\n");
         }
 
         sqlBuilder.Append(";");
@@ -405,7 +423,7 @@ public class SeedDataGenerator
             var currentLat = _graz.Y + (_random.NextDouble() - 0.5) * 0.003;
             for (var i = 0; i < new Random().Next(0, 200); i++)
             {
-                (currentLong, currentLat) = GetRandomPointWithinRadius(currentLong, currentLat, 2.5);
+                (currentLong, currentLat) = GetRandomPointWithinRadius(currentLong, currentLat, 2.75);
                 var location = new Point(currentLong, currentLat) { SRID = 4326 };
                 var (title, description) = _todoDescription.ElementAt(_random.Next(0, _todoDescription.Count));
                 var randomUser = _users[_random.Next(0, _users.Count)];
@@ -415,7 +433,7 @@ public class SeedDataGenerator
                 {
                     Id = Guid.NewGuid(),
                     UserId = user.Id,
-                    Location = _random.Next(0, 100) < 50 ? null : location,
+                    Location = location,
                     Title = title,
                     Content = description,
                     CreatedUtc = DateTime.UtcNow,
@@ -450,22 +468,40 @@ public class SeedDataGenerator
         WriteSqlStatement(sqlBuilder, "todos");
     }
 
+    private IList<Guid> getRandomUserList(int amount)
+    {
+        var randomUserList = new List<Guid>();
+        for (var i = 0; i < amount; i++)
+        {
+            var randomUser = _users[_random.Next(0, _users.Count)];
+            while (randomUserList.Contains(randomUser.Id))
+                randomUser = _users[_random.Next(0, _users.Count)];
+            randomUserList.Add(randomUser.Id);
+        }
+
+        return randomUserList;
+    }
+
     public void GenerateTodoShares()
     {
         foreach (var todo in _todos)
         {
             var sharedById = todo.UserId;
-            var sharedWith = _users[_random.Next(_users.Count)];
-            var share = new TodoShare
+            var shareRnd = _random.Next(0, 5);
+            var sharedWithUsers = getRandomUserList(shareRnd);
+            foreach (var sharedWithUser in sharedWithUsers)
             {
-                Id = Guid.NewGuid(),
-                TodoId = todo.Id,
-                SharedById = sharedById,
-                SharedWithId = sharedWith.Id,
-                CreatedUtc = DateTime.UtcNow,
-                UpdatedUtc = DateTime.UtcNow
-            };
-            _todoShares.Add(share);
+                var share = new TodoShare
+                {
+                    Id = Guid.NewGuid(),
+                    TodoId = todo.Id,
+                    SharedById = sharedById,
+                    SharedWithId = sharedWithUser,
+                    CreatedUtc = DateTime.UtcNow,
+                    UpdatedUtc = DateTime.UtcNow
+                };
+                _todoShares.Add(share);
+            }
         }
         //Output
 

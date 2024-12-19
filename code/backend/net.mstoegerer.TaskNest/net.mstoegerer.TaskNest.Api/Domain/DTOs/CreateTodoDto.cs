@@ -7,6 +7,6 @@ public class CreateTodoDto
     public string Status { get; set; } = null!;
     public Guid? AssignedToId { get; set; }
     public DateTime? DueUtc { get; set; }
-    public PointDto? Location { get; set; }
+    public PointDto Location { get; set; } = null!;
     public ICollection<CreateAttachmentDto> Attachments { get; set; } = new HashSet<CreateAttachmentDto>();
 }

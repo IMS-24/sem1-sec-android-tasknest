@@ -21,7 +21,7 @@ public static class CurrentUser
     public static void Clear()
     {
         UserId = Guid.Empty;
-        ExternalUserId = null;
+        ExternalUserId = null!;
         IsAdmin = false;
     }
 }

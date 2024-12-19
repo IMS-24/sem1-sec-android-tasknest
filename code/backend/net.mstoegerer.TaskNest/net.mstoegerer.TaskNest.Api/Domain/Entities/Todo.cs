@@ -10,7 +10,7 @@ public class Todo
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     public DateTime? DeletedUtc { get; set; }
     public DateTime UpdatedUtc { get; set; } = DateTime.UtcNow;
-    public Point? Location { get; set; }
+    public Point Location { get; set; } = null!;
     public DateTime? DueUtc { get; set; }
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;

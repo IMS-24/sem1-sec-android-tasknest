@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using net.mstoegerer.TaskNest.Api.Domain.Entities;
+using NetTopologySuite.Geometries;
 
 namespace net.mstoegerer.TaskNest.Api.Infrastructure.EntityConfigurations;
 
@@ -48,8 +49,7 @@ public class TodoEntityTypeConfiguration : IEntityTypeConfiguration<Todo>
             .IsRequired(false);
 
         builder.Property(md => md.Location)
-            .HasColumnType("geometry")
-            .IsRequired(false);
+            .HasColumnType("geometry");
 
         builder
             .Property(entity => entity.UserId)
@@ -83,7 +83,8 @@ public class TodoEntityTypeConfiguration : IEntityTypeConfiguration<Todo>
                     Title = "First Todo",
                     Id = Guid.Parse("e832db47-e640-4539-825b-b3940ff882d9"),
                     UserId = Guid.Parse("23d8d722-4037-466c-a68f-98e90e9ba66b"),
-                    AssignedToId = Guid.Parse("23d8d722-4037-466c-a68f-98e90e9ba66b")
+                    AssignedToId = Guid.Parse("23d8d722-4037-466c-a68f-98e90e9ba66b"),
+                    Location = new Point(15.4395, 47.0707) { SRID = 4326 }
                 }
             });
     }

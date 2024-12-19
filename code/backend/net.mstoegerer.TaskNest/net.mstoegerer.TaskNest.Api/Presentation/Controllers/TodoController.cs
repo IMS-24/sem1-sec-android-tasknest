@@ -12,6 +12,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [ProducesResponseType(typeof(TodoDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(Guid id)
     {
+        logger.LogInformation("Get todo request");
         var res = await todoService.GetTodoAsync(id);
         return Ok(res);
     }
@@ -21,6 +22,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [ProducesResponseType(typeof(PaginatedResultDto<TodoDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] int pageIndex, [FromQuery] int pageSize)
     {
+        logger.LogInformation("Get all todos request");
         var res = await todoService.GetTodosAsync(pageIndex, pageSize);
         return Ok(res);
     }
@@ -29,6 +31,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [Authorize]
     public async Task<IActionResult> ToggleDoneAsync(Guid id)
     {
+        logger.LogInformation("Toggle done request");
         await todoService.ToggleDoneAsync(id);
         return Ok();
     }
@@ -37,6 +40,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [Authorize]
     public async Task<IActionResult> CancelTodoAsync(Guid id)
     {
+        logger.LogInformation("Cancel todo request");
         await todoService.MarkTodoAsCancelledAsync(id);
         return Ok();
     }
@@ -46,6 +50,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [ProducesResponseType(typeof(IList<AttachmentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAttachments(Guid id)
     {
+        logger.LogInformation("Get attachments request");
         var res = await todoService.GetAttachmentsAsync(id);
         return Ok(res);
     }
@@ -54,6 +59,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateTodoDto todoDto)
     {
+        logger.LogInformation("Create todo request");
         var res = await todoService.CreateTodoAsync(todoDto);
         return Created();
     }
@@ -62,6 +68,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [Authorize]
     public async Task<IActionResult> Delete(Guid id)
     {
+        logger.LogInformation("Delete todo request");
         await todoService.DeleteTodoAsync(id);
         return Ok();
     }
@@ -70,6 +77,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [Authorize]
     public async Task<IActionResult> Share([FromBody] CreateTodoShareDto todoShareDto)
     {
+        logger.LogInformation("Share todo request");
         await todoService.ShareTodoAsync(todoShareDto);
         return Created();
     }
@@ -79,6 +87,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
     [ProducesResponseType(typeof(PaginatedResultDto<TodoShareDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetShares([FromQuery] int page, [FromQuery] int pageSize)
     {
+        logger.LogInformation("Get share todos request");
         var res = await todoService.GetShareTodoAsync(page, pageSize);
         return Ok(res);
     }

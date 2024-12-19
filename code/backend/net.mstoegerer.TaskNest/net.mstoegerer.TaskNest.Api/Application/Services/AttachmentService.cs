@@ -6,10 +6,11 @@ using net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 
 namespace net.mstoegerer.TaskNest.Api.Application.Services;
 
-public class AttachmentService(ApplicationDbContext dbContext)
+public class AttachmentService(ApplicationDbContext dbContext, ILogger<AttachmentService> logger)
 {
     public async Task<AttachmentDto> CreateAttachmentAsync(CreateAttachmentDto attachmentDto)
     {
+        logger.LogInformation("Create attachment {@Attachment}", attachmentDto);
         var attachment = new Attachment
         {
             Id = Guid.NewGuid(),
@@ -42,6 +43,7 @@ public class AttachmentService(ApplicationDbContext dbContext)
 
     public async Task<AttachmentDto> GetAttachmentAsync(Guid id)
     {
+        logger.LogInformation("Get attachment {Id}", id);
         var attachment = await dbContext.Attachments.FirstOrDefaultAsync(x => x.Id == id);
         if (attachment == null) throw new Exception("Attachment not found");
         return new AttachmentDto
