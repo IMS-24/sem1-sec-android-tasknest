@@ -6,6 +6,7 @@ import at.avollmaier.tasknest.common.NetworkUtils
 import at.avollmaier.tasknest.todo.data.CreateTodoDto
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.ShareTodoDto
+import at.avollmaier.tasknest.todo.data.TodoPages
 import at.avollmaier.tasknest.todo.data.TodoStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,9 +43,9 @@ class TodoService(context: Context) {
         }
     }
 
-    fun getTodos(callback: (List<FetchTodoDto>?) -> Unit) {
+    fun getTodos(pageIndex: Int, pageSize: Int, callback: (TodoPages?) -> Unit) {
         makeApiCall(
-            apiCall = { api.getTodos().execute() },
+            apiCall = { api.getTodos(pageIndex, pageSize).execute() },
             onSuccess = { callback(it) },
             onError = { callback(null) }
         )
@@ -74,10 +75,9 @@ class TodoService(context: Context) {
         )
     }
 
-    fun getNewTodos(callback: (List<FetchTodoDto>) -> Unit) {
-        getTodos { todos ->
-            todos?.filter { it.status == TodoStatus.NEW }?.let { callback(it) }
+    fun getNewTodos(pageIndex: Int, pageSize: Int, callback: (List<FetchTodoDto>) -> Unit) {
+        getTodos(pageIndex, pageSize) { todoPages ->
+            todoPages?.items?.filter { it.status == TodoStatus.NEW }?.let { callback(it) }
         }
     }
-
 }

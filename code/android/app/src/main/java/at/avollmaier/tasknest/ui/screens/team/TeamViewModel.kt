@@ -15,28 +15,38 @@ class TeamViewModel(
     private val todoService: TodoService,
     private val externalUserService: ExternalUserService
 ) : ViewModel() {
-
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
+    private val _hasNextPage = MutableStateFlow(false)
+    val hasNextPage: StateFlow<Boolean> = _hasNextPage
+
+    private var pageIndex = 0
+    private val pageSize = 5
 
     init {
-        fetchTodos()
-
-    }
-
-    fun refreshTodos() {
         fetchTodos()
     }
 
     private fun fetchTodos() {
         viewModelScope.launch {
-            todoService.getNewTodos { fetchedTodos ->
-                fetchedTodos.let {
-                    _todos.value = fetchedTodos
+            todoService.getTodos(pageIndex, pageSize) { todoPages ->
+                todoPages?.let {
+                    _todos.value += it.items
+                    _hasNextPage.value = it.hasNextPage
                 }
             }
-
         }
+    }
+
+    fun loadMoreTodos() {
+        pageIndex++
+        fetchTodos()
+    }
+
+    fun refreshTodos() {
+        pageIndex = 0
+        _todos.value = emptyList()
+        fetchTodos()
     }
 
     fun shareTodoWithUser(selectedTodoId: UUID, userIdToShare: UUID) {

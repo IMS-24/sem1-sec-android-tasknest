@@ -91,6 +91,7 @@ fun OverviewScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     val coroutineScope = CoroutineScope(Dispatchers.IO)
     var showDialog by remember { mutableStateOf(false) }
+    val hasNextPage by viewModel.hasNextPage.collectAsState()
 
     TaskNestTheme {
         PullToRefreshBox(
@@ -111,9 +112,9 @@ fun OverviewScreen(
                         modifier = Modifier
                             .padding(16.dp)
                             .fillMaxSize()
-                            .align(Alignment.Center)
+                            .align(Alignment.Center),
                     ) {
-                        OverviewHeader(viewModel, todos.size)
+                        OverviewHeader(viewModel, viewModel.getTodosCount())
                         Spacer(modifier = Modifier.height(16.dp))
                         LazyColumn(
                             modifier = Modifier.fillMaxSize()
@@ -125,6 +126,18 @@ fun OverviewScreen(
                             } else {
                                 items(todos) { todo ->
                                     TodoCard(todo, viewModel)
+                                }
+                                item {
+                                    if (hasNextPage) {
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Button(onClick = { viewModel.loadMoreTodos() }) {
+                                                Text("Load More")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

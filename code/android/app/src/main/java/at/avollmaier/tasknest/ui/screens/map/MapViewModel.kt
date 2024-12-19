@@ -23,9 +23,9 @@ class MapViewModel(private val todoService: TodoService) : ViewModel() {
 
     fun fetchTodos() {
         viewModelScope.launch {
-            todoService.getTodos { fetchedTodos ->
-                fetchedTodos?.let {
-                    _todos.value = it
+            todoService.getTodos(0, Int.MAX_VALUE) { todoPages ->
+                todoPages?.let {
+                    _todos.value = it.items
                     _markersAdded.value = false
                 }
             }

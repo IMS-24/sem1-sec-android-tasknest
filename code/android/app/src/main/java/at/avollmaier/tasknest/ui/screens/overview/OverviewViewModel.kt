@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.avollmaier.tasknest.common.ManifestUtils
+import at.avollmaier.tasknest.BuildConfig
 import at.avollmaier.tasknest.todo.data.AttachmentDto
 import at.avollmaier.tasknest.todo.data.CreateTodoDto
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
@@ -20,15 +20,19 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 class OverviewViewModel(private val todoService: TodoService, context: Context) : ViewModel() {
+    private var totalTodos: Int = 0
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
-    private lateinit var placesClient: PlacesClient
+    private val _hasNextPage = MutableStateFlow(false)
+    val hasNextPage: StateFlow<Boolean> = _hasNextPage
+
+    private var placesClient: PlacesClient
+    private var pageIndex = 0
+    private val pageSize = 5
 
     init {
-        val apiKey = ManifestUtils.getApiKeyFromManifest(context)
-
         if (!Places.isInitialized()) {
-            apiKey?.let { key -> Places.initialize(context, key) }
+            Places.initialize(context, BuildConfig.GMP_KEY)
         }
         placesClient = Places.createClient(context)
         fetchTodos()
@@ -40,17 +44,18 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
 
     private fun fetchTodos() {
         viewModelScope.launch {
-            todoService.getNewTodos { fetchedTodos ->
-                fetchedTodos.let {
-                    _todos.value = fetchedTodos
+            todoService.getTodos(pageIndex, pageSize) { todoPages ->
+                todoPages?.let {
+                    _todos.value += it.items
+                    _hasNextPage.value = it.hasNextPage
+                    totalTodos = it.totalCount
                 }
-
             }
         }
     }
 
-    fun refreshTodos() {
-        fetchTodos()
+    fun getTodosCount(): Int {
+        return totalTodos
     }
 
     fun addTodo(
@@ -108,5 +113,16 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
                 todoId = uuid,
             )
         }
+    }
+
+    fun loadMoreTodos() {
+        pageIndex++
+        fetchTodos()
+    }
+
+    fun refreshTodos() {
+        pageIndex = 0
+        _todos.value = emptyList()
+        fetchTodos()
     }
 }
