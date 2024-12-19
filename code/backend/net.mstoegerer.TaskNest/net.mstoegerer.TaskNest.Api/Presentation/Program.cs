@@ -60,6 +60,12 @@ if (app.Environment.IsDevelopment())
     IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 }
 
+if (app.Environment.IsProduction())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpLogging();
 //app.UseMiddleware<TokenValidationMiddleware>();
 app.UseAuthentication(); // Enables authentication

@@ -9,6 +9,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
 {
     [HttpGet("{id:guid}")]
     [Authorize]
+    [ProducesResponseType(typeof(TodoDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(Guid id)
     {
         var res = await todoService.GetTodoAsync(id);
@@ -17,9 +18,10 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(PaginatedResultDto<TodoDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] int pageIndex, [FromQuery] int pageSize)
     {
-        var res = await todoService.GetTodosAsync();
+        var res = await todoService.GetTodosAsync(pageIndex, pageSize);
         return Ok(res);
     }
 
@@ -41,6 +43,7 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
 
     [HttpGet("{id:guid}/attachment")]
     [Authorize]
+    [ProducesResponseType(typeof(IList<AttachmentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAttachments(Guid id)
     {
         var res = await todoService.GetAttachmentsAsync(id);
@@ -73,9 +76,10 @@ public class TodoController(TodoService todoService, ILogger<TodoController> log
 
     [HttpGet("share")]
     [Authorize]
-    public async Task<IActionResult> GetShares()
+    [ProducesResponseType(typeof(PaginatedResultDto<TodoShareDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetShares([FromQuery] int page, [FromQuery] int pageSize)
     {
-        var res = await todoService.GetShareTodoAsync();
+        var res = await todoService.GetShareTodoAsync(page, pageSize);
         return Ok(res);
     }
 }

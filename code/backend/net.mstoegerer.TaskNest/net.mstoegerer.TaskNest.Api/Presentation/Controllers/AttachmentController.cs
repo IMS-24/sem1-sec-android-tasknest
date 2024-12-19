@@ -10,6 +10,7 @@ public class AttachmentController(AttachmentService attachmentService, ILogger<A
 {
     [HttpGet("{id:guid}")]
     [Authorize]
+    [ProducesResponseType(typeof(AttachmentDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(Guid id)
     {
         logger.LogInformation("Get attachment {Id}", id);

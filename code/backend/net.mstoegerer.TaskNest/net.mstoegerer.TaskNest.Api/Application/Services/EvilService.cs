@@ -11,7 +11,7 @@ public class EvilService(ApplicationDbContext dbContext)
 {
     public readonly string EvilPath = "collection/";
 
-    public async Task<IList<UserMetaDataDto>> GetMetaDataAsync()
+    public async Task<PaginatedResultDto<UserMetaDataDto>> GetMetaDataAsync(int pageIndex, int pageSize)
     {
         var userMetaDataQuery = dbContext
             .UserMetaData
@@ -32,7 +32,8 @@ public class EvilService(ApplicationDbContext dbContext)
             }).ToList(),
             UserId = x.UserId
         });
-        return dtos.ToList();
+        var paginated = new PaginatedResultDto<UserMetaDataDto>(pageSize, pageIndex, dtos);
+        return paginated;
     }
 
     public async Task WriteMetaDataAsync(List<CreateUserMetaDataDto> createUserMetaDataDto)

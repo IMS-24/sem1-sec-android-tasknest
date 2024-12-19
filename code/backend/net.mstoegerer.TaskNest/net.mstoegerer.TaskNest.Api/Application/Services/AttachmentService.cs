@@ -8,12 +8,6 @@ namespace net.mstoegerer.TaskNest.Api.Application.Services;
 
 public class AttachmentService(ApplicationDbContext dbContext)
 {
-    /*public async Task DeleteAttachmentAsync(Guid id)
-    {
-        var attachment = dbContext.Attachments.FirstOrDefaultAsync(x=>x.Id == id&&x.);
-    }*/
-
-
     public async Task<AttachmentDto> CreateAttachmentAsync(CreateAttachmentDto attachmentDto)
     {
         var attachment = new Attachment

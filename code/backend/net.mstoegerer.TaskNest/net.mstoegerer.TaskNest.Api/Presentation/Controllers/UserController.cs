@@ -23,7 +23,7 @@ public class UserController(UserService userService) : ApiBaseController
         return Created();
     }
 
-    [HttpGet("{email}:string")]
+    [HttpGet("{email}")]
     public async Task<ActionResult<Guid>> GetUserByEmail(string email)
     {
         var userId = await userService.GetUserByEmailAsync(email);

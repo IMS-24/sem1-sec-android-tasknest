@@ -19,7 +19,7 @@ public class TodoService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<AttachmentDto>> GetAttachmentsAsync(Guid todoId)
+    public async Task<IList<AttachmentDto>> GetAttachmentsAsync(Guid todoId)
     {
         var attachments = dbContext.Attachments.Where(x => x.TodoId == todoId);
         return await attachments.Select(x => new AttachmentDto
@@ -137,14 +137,14 @@ public class TodoService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<TodoDto>> GetTodosAsync()
+    public async Task<PaginatedResultDto<TodoDto>> GetTodosAsync(int pageIndex, int pageSize)
     {
         var todos = dbContext.Todos
             .Include(x => x.Attachments)
             .Where(x => x.DeletedUtc == null && x.UserId == CurrentUser.UserId);
 
         if (todos == null) throw new Exception("Todos not found");
-        var res = await todos.Select(todo => new TodoDto
+        var res = todos.Select(todo => new TodoDto
         {
             Id = todo.Id,
             Title = todo.Title,
@@ -159,8 +159,9 @@ public class TodoService(ApplicationDbContext dbContext)
                 : PointDto.FromPoint(todo.Location),
             UserId = todo.UserId,
             HasAttachment = todo.Attachments.Count != 0
-        }).ToListAsync();
-        return res;
+        });
+        var paginated = new PaginatedResultDto<TodoDto>(pageSize, pageIndex, res);
+        return paginated;
     }
 
     public async Task ShareTodoAsync(CreateTodoShareDto todoShareDto)
@@ -181,7 +182,7 @@ public class TodoService(ApplicationDbContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<TodoShareDto>> GetShareTodoAsync()
+    public async Task<PaginatedResultDto<TodoShareDto>> GetShareTodoAsync(int pageIndex, int pageSize)
     {
         var shares = dbContext.TodoShares
             .Include(share => share.Todo)
@@ -217,6 +218,7 @@ public class TodoService(ApplicationDbContext dbContext)
             };
             sharesDto.Add(shareDto);
         });
-        return sharesDto;
+        var paginated = new PaginatedResultDto<TodoShareDto>(pageSize, pageIndex, sharesDto);
+        return paginated;
     }
 }
