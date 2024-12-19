@@ -74,6 +74,8 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
                     attachments = handleFilePickerResult(context, id, attachments)
                 )
             ) {
+                pageIndex = 0
+                _todos.value = emptyList()
                 fetchTodos()
             }
         }
