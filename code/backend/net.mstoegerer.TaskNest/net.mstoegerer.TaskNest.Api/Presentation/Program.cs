@@ -23,15 +23,12 @@ if (seed)
 var builder = WebApplication.CreateBuilder(args);
 var configurationBuilder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("Presentation/appsettings.json", true)
-    .AddJsonFile("Presentation/appsettings.Local.json", true);
+    .AddJsonFile("Presentation/appsettings.Development.json", true)
+    .AddJsonFile("Presentation/appsettings.Production.json", true);
+
 IConfiguration configuration = configurationBuilder
     .Build();
-builder.Host.UseSerilog((ctx, cfg) =>
-{
-    cfg.WriteTo.Console();
-    cfg.MinimumLevel.Information();
-});
+builder.Host.UseSerilog((ctx, cfg) => { cfg.ReadFrom.Configuration(configuration); });
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
