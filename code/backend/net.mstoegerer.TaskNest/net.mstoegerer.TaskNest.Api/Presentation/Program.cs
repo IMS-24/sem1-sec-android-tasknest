@@ -33,7 +33,7 @@ builder.Host.UseSerilog((ctx, cfg) => { cfg.ReadFrom.Configuration(configuration
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddInfrastructureService(configuration);
+builder.Services.AddInfrastructureService(configuration, builder.Environment.IsDevelopment());
 builder.Services.AddApplicationServices();
 
 var auth0Config = configuration.GetConfig<Auth0Config>("Auth0");
