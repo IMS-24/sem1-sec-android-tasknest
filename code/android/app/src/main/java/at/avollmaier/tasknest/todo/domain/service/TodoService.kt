@@ -6,6 +6,7 @@ import at.avollmaier.tasknest.common.NetworkUtils
 import at.avollmaier.tasknest.todo.data.CreateTodoDto
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.ShareTodoDto
+import at.avollmaier.tasknest.todo.data.TodoStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,11 +74,10 @@ class TodoService(context: Context) {
         )
     }
 
-    fun getTodoShareInfo(callback: (List<ShareTodoDto>?) -> Unit) {
-        makeApiCall(
-            apiCall = { api.getSharedTodos().execute() },
-            onSuccess = { callback(it) },
-            onError = { callback(null) }
-        )
+    fun getNewTodos(callback: (List<FetchTodoDto>) -> Unit) {
+        getTodos { todos ->
+            todos?.filter { it.status == TodoStatus.NEW }?.let { callback(it) }
+        }
     }
+
 }

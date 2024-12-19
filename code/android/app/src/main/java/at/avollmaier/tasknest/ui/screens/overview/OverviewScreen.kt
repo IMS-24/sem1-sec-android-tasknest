@@ -65,7 +65,6 @@ import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.PointDto
 import at.avollmaier.tasknest.todo.data.TodoStatus
 import at.avollmaier.tasknest.ui.theme.TaskNestTheme
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
@@ -278,7 +277,7 @@ fun AddTodoDialog(onDismiss: () -> Unit, viewModel: OverviewViewModel) {
                     })
                 Spacer(modifier = Modifier.height(8.dp))
                 SearchBar(
-                    placesClient = Places.createClient(context),
+                    placesClient = viewModel.getPlaceClient(),
                     onPlaceSelected = { lat, lng ->
                         searchedLocation = PointDto(x = lat, y = lng)
                     })

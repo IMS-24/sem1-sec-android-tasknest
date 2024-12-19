@@ -10,8 +10,6 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import at.avollmaier.tasknest.R
 import at.avollmaier.tasknest.location.domain.service.LocationDatabaseService
-import at.avollmaier.tasknest.todo.data.FetchTodoDto
-import at.avollmaier.tasknest.todo.data.TodoStatus
 import at.avollmaier.tasknest.todo.domain.service.TodoService
 import java.util.concurrent.TimeUnit
 
@@ -20,9 +18,6 @@ class LocationCheckWorker(
     workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
 
-    private fun filterActiveTodos(todos: List<FetchTodoDto>): List<FetchTodoDto> {
-        return todos.filter { it.status == TodoStatus.NEW }
-    }
 
     override suspend fun doWork(): Result {
         val location = LocationDatabaseService(applicationContext).getCurrentLocation()
@@ -30,26 +25,24 @@ class LocationCheckWorker(
         val todoService = TodoService(applicationContext)
 
 
-        todoService.getTodos { result ->
+        todoService.getNewTodos { result ->
 
 
-            if (result != null) {
-                filterActiveTodos(result).forEach { todo ->
-                    val todoLocation = todo.location
-                    if (isWithinRange(
-                            location.x,
-                            location.y,
-                            todoLocation.x,
-                            todoLocation.y
-                        )
-                    ) {
-                        todoService.finishTodo(
-                            todo.id,
-                            callback = {
-                                Log.e("LocationCheckWorker", "Finished todo with id ${todo.id}")
-                            }
-                        )
-                    }
+            result.forEach { todo ->
+                val todoLocation = todo.location
+                if (isWithinRange(
+                        location.x,
+                        location.y,
+                        todoLocation.x,
+                        todoLocation.y
+                    )
+                ) {
+                    todoService.finishTodo(
+                        todo.id,
+                        callback = {
+                            Log.e("LocationCheckWorker", "Finished todo with id ${todo.id}")
+                        }
+                    )
                 }
             }
         }

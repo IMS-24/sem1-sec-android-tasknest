@@ -45,7 +45,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import at.avollmaier.tasknest.auth.data.ExternalUserDto
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.ui.theme.TaskNestTheme
 import kotlinx.coroutines.CoroutineScope
@@ -60,7 +59,6 @@ fun TeamScreen(
 
 ) {
     val todos by teamViewModel.todos.collectAsState()
-    val users by teamViewModel.users.collectAsState()
     val coroutineScope = CoroutineScope(Dispatchers.IO)
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -87,11 +85,6 @@ fun TeamScreen(
                     ) {
 
                         TeamTodos(todos, teamViewModel)
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        if (users.isNotEmpty()) MyTeam(users)
-
                     }
                 }
             }
@@ -101,27 +94,6 @@ fun TeamScreen(
     }
 }
 
-@Composable
-fun MyTeam(
-    users: List<ExternalUserDto>
-) {
-
-    Text(
-        text = "My Team",
-        style = MaterialTheme.typography.headlineSmall,
-        fontWeight = FontWeight.Bold
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(users) { user ->
-            UserCard(user)
-        }
-    }
-}
 
 @Composable
 fun TeamTodos(
@@ -146,45 +118,6 @@ fun TeamTodos(
         }
     }
 }
-
-@Composable
-fun UserCard(user: ExternalUserDto) {
-    Card(
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.LightGray.copy(alpha = 0.2f)
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    overflow = TextOverflow.Ellipsis,
-                    text = "${user.givenName} ${user.familyName}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-                Text(
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    text = user.email,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 fun ShareTodoCard(todo: FetchTodoDto, teamViewModel: TeamViewModel) {
