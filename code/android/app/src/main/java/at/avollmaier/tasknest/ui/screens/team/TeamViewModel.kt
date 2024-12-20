@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import at.avollmaier.tasknest.auth.domain.service.ExternalUserService
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.ShareTodoDto
+import at.avollmaier.tasknest.todo.data.TodoStatus
 import at.avollmaier.tasknest.todo.domain.service.TodoService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,8 @@ class TeamViewModel(
         viewModelScope.launch {
             todoService.getTodos(pageIndex, pageSize) { todoPages ->
                 todoPages?.let {
-                    _todos.value += it.items
+                    val newTodos = it.items.filter { todo -> todo.status == TodoStatus.NEW }
+                    _todos.value += newTodos
                     _hasNextPage.value = it.hasNextPage
                 }
             }

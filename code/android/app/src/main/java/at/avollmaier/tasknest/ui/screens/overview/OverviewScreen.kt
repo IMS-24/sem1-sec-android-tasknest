@@ -114,7 +114,7 @@ fun OverviewScreen(
                             .fillMaxSize()
                             .align(Alignment.Center),
                     ) {
-                        OverviewHeader(viewModel, viewModel.getTodosCount())
+                        OverviewHeader(viewModel, todos.size)
                         Spacer(modifier = Modifier.height(16.dp))
                         LazyColumn(
                             modifier = Modifier.fillMaxSize()
