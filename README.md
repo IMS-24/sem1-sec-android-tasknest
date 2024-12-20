@@ -1,85 +1,182 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# TaskNest Project
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
+TaskNest is a comprehensive task management platform consisting of a modern ASP.NET backend, a Kotlin Android app with Jetpack Compose for the user interface, and a PostGIS-enabled PostgreSQL database. The project is fully containerized using Docker for seamless deployment and scalability.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Project Structure
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
+```
+TaskNest/
+|
+├── code/
+│   ├── android/             # Kotlin Android app source code
+│   │   ├── app/             # Main Android app module
+│   │   │   ├── build.gradle.kts
+│   │   │   ├── proguard-rules.pro
+│   │   │   └── src/
+│   │   │       ├── androidTest/  # Instrumented tests
+│   │   │       ├── main/         # Main source set
+│   │   │       │   ├── AndroidManifest.xml
+│   │   │       │   ├── java/     # Kotlin source files
+│   │   │       │   │   └── at/avollmaier/tasknest
+│   │   │       │   │       ├── auth/         # Authentication module
+│   │   │       │   │       │   ├── data
+│   │   │       │   │       │   └── domain
+│   │   │       │   │       ├── common/       # Common utilities
+│   │   │       │   │       ├── location/     # Location handling
+│   │   │       │   │       ├── todo/         # Todo management
+│   │   │       │   │       └── ui/           # User interface components
+│   │   │       └── res/      # Android resources
+│   │   ├── build.gradle.kts
+│   │   ├── gradlew
+│   │   └── settings.gradle.kts
+│   └── backend/             # ASP.NET backend source code
+│       └── net.mstoegerer.TaskNest
+│           ├── Dockerfile
+│           ├── net.mstoegerer.TaskNest.Api
+│           │   ├── Application/
+│           │   │   ├── Extensions
+│           │   │   └── Services
+│           │   ├── Domain/
+│           │   │   ├── Configs
+│           │   │   │   └── Auth0Config.cs
+│           │   │   ├── DTOs
+│           │   │   └── Entities
+│           │   ├── Infrastructure/
+│           │   ├── Presentation/
+│           │   └── Program.cs
+│           ├── net.mstoegerer.TaskNest.sln
+├── docker-compose.yml       # Docker Compose configuration
+├── swagger.json             # API documentation
+└── README.md                # Project documentation
 ```
 
-## Compile and run the project
+---
+
+## Features
+
+### Backend (ASP.NET)
+- RESTful API services for task management.
+- Authentication and authorization.
+- Integration with a PostGIS-enabled PostgreSQL database for geospatial data handling.
+
+### Database (PostGIS)
+- PostgreSQL database with PostGIS extension for spatial queries.
+- Pre-configured initialization scripts for setting up tables and extensions.
+
+### Mobile App (Kotlin)
+- Built with Jetpack Compose for a modern, declarative UI.
+- Seamless interaction with the backend API.
+- Offline support with local caching.
+
+---
+
+## Prerequisites
+
+Ensure the following are installed on your development machine:
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Android Studio](https://developer.android.com/studio)
+- [.NET SDK](https://dotnet.microsoft.com/download)
+
+---
+
+## Getting Started
+
+### 1. Clone the Repository
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+git clone https://github.com/yourusername/tasknest.git
+cd tasknest
 ```
 
-## Run tests
+### 2. Configure Environment Variables
+
+Create a `.env` file in the project root directory and configure the following variables:
+
+```
+POSTGRES_USER=yourusername
+POSTGRES_PASSWORD=yourpassword
+POSTGRES_DB=tasknest
+POSTGRES_PORT=5432
+```
+
+### 3. Start the Application with Docker Compose
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+docker-compose up --build
 ```
 
-## Resources
+This will:
+- Start the ASP.NET backend service.
+- Start the PostgreSQL database with PostGIS extension.
 
-Check out a few resources that may come in handy when working with NestJS:
+### 4. Run the Mobile App
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Open the `code/android/` directory in Android Studio.
+- Sync the Gradle project.
+- Run the app on an emulator or a physical device.
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## API Documentation
 
-## Stay in touch
+The backend exposes a set of RESTful APIs for managing tasks, users, and geospatial data. Once the backend service is running, API documentation is available at:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```
+http://localhost:<backend-port>/swagger
+```
+
+---
+
+## Database Management
+
+To access the database, connect using a PostgreSQL client with the following credentials:
+
+- Host: `localhost`
+- Port: `5432`
+- User: `yourusername`
+- Password: `yourpassword`
+- Database: `tasknest`
+
+---
+
+## Development Workflow
+
+### Backend Development
+1. Navigate to the `code/backend/` directory.
+2. Use the .NET CLI or your preferred IDE (e.g., Visual Studio) to run the backend locally:
+
+```bash
+cd code/backend/net.mstoegerer.TaskNest
+ dotnet run
+```
+
+### Mobile App Development
+1. Open the `code/android/` directory in Android Studio.
+2. Sync Gradle dependencies.
+3. Run the app using an emulator or connected device.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+1. Fork the repository.
+2. Create a feature branch.
+3. Commit your changes.
+4. Submit a pull request.
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+TaskNest is licensed under the MIT License. See the `LICENSE` file for more details.
+
+---
+
+## Contact
+
+For questions or support, please contact [yourname](mailto:yourname@example.com).
