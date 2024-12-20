@@ -1,3 +1,4 @@
+
 # TaskNest Project
 
 ## Overview
@@ -88,7 +89,7 @@ Ensure the following are installed on your development machine:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/tasknest.git
+git clone https://github.com/IMS-24/sem1-sec-android-tasknest.git
 cd tasknest
 ```
 
@@ -151,7 +152,7 @@ To access the database, connect using a PostgreSQL client with the following cre
 
 ```bash
 cd code/backend/net.mstoegerer.TaskNest
- dotnet run
+dotnet run
 ```
 
 ### Mobile App Development
@@ -179,4 +180,17 @@ TaskNest is licensed under the MIT License. See the `LICENSE` file for more deta
 
 ## Contact
 
-For questions or support, please contact [yourname](mailto:yourname@example.com).
+For questions or support, please contact [Markus Stoegerer](mailto:markus.stoegerer@gmail.com) or [Alois Vollmaier](mailto:alois.vollm@gmail.com).
+
+---
+
+## Repository
+
+GitHub Repository: [https://github.com/IMS-24/sem1-sec-android-tasknest](https://github.com/IMS-24/sem1-sec-android-tasknest)
+
+---
+
+## Contributors
+
+- Markus Stoegerer ([markus.stoegerer@gmail.com](mailto:markus.stoegerer@gmail.com))
+- Alois Vollmaier ([alois.vollm@gmail.com](mailto:alois.vollm@gmail.com))
