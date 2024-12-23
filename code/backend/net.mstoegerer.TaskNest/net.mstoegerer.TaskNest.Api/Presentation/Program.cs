@@ -24,8 +24,8 @@ var builder = WebApplication.CreateBuilder(args);
 var configurationBuilder = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("Presentation/appsettings.Development.json", true)
+        .AddJsonFile("Presentation/appsettings.Production.json", true)
         .AddEnvironmentVariables()
-// .AddJsonFile("Presentation/appsettings.Production.json", true)
     ;
 
 IConfiguration configuration = configurationBuilder
