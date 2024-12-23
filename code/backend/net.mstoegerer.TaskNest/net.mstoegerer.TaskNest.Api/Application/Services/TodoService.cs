@@ -52,7 +52,8 @@ public class TodoService(ApplicationDbContext dbContext, ILogger<TodoService> lo
             UpdatedUtc = DateTime.UtcNow,
             Status = todoDto.Status,
             AssignedToId = todoDto.AssignedToId ?? CurrentUser.UserId,
-            Location = new Point(todoDto.Location.X, todoDto.Location.Y),
+            //Fucked up switchery doo for srid
+            Location = new Point(todoDto.Location.Y, todoDto.Location.X) { SRID = 4326 },
             UserId = CurrentUser.UserId,
             Attachments = todoDto.Attachments
                 .Select(x => new Attachment

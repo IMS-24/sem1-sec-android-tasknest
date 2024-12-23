@@ -11,8 +11,8 @@ public class PointDto
     {
         return new PointDto
         {
-            X = point.X,
-            Y = point.Y
+            X = point.Y,
+            Y = point.X
         };
     }
 

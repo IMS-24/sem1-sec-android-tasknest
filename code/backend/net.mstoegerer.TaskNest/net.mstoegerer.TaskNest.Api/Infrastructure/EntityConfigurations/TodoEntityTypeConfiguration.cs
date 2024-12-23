@@ -49,7 +49,7 @@ public class TodoEntityTypeConfiguration : IEntityTypeConfiguration<Todo>
             .IsRequired(false);
 
         builder.Property(md => md.Location)
-            .HasColumnType("geometry");
+            .HasColumnType("geometry(Point, 4326)");
 
         builder
             .Property(entity => entity.UserId)

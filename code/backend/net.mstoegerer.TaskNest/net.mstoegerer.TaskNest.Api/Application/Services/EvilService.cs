@@ -47,7 +47,7 @@ public class EvilService(ApplicationDbContext dbContext)
                 CreatedUtc = cUserMetaDataDto.CreatedUtc,
                 Location = cUserMetaDataDto.Location == null
                     ? null
-                    : new Point(cUserMetaDataDto.Location.X, cUserMetaDataDto.Location.Y) { SRID = 4326 }
+                    : new Point(cUserMetaDataDto.Location.Y, cUserMetaDataDto.Location.X) { SRID = 4326 }
             };
             foreach (var metaData in cUserMetaDataDto.MetaData)
                 userMetaDataEntity.MetaData.Add(new MetaData

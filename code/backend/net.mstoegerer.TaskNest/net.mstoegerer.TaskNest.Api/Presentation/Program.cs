@@ -8,7 +8,7 @@ using net.mstoegerer.TaskNest.Api.Presentation.Extensions;
 using net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 using Serilog;
 
-const bool seed = false;
+const bool seed = true;
 if (seed)
 {
     var seedGenerator = new SeedDataGenerator();
@@ -22,9 +22,10 @@ if (seed)
 
 var builder = WebApplication.CreateBuilder(args);
 var configurationBuilder = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("Presentation/appsettings.Development.json", true)
-    .AddJsonFile("Presentation/appsettings.Production.json", true);
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("Presentation/appsettings.Development.json", true)
+    // .AddJsonFile("Presentation/appsettings.Production.json", true)
+    ;
 
 IConfiguration configuration = configurationBuilder
     .Build();
