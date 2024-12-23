@@ -171,7 +171,10 @@ public class SeedDataGenerator
         "Sebastian", "Charlotte", "Daniel", "Katharina", "Tobias", "Mila", "Jan", "Sabrina", "Florian", "Maria"
     ];
 
-    private readonly Point _graz = new(15.4395, 47.0707) { SRID = 4326 }; // Starting location around Graz
+/*
+ * Graz Latitude and longitude coordinates are: (x)47.076668, (y)15.421371.
+ */
+    private readonly Point _graz = new(47.0707, 15.4395) { SRID = 4326 }; // Starting location around Graz
 
     private readonly List<string> _lastNames =
     [
@@ -344,7 +347,7 @@ public class SeedDataGenerator
     {
         if (location != null)
             sqlBuilder.Append(
-                $"ST_SetSRID(ST_MakePoint({location.X.ToString(CultureInfo.InvariantCulture)}, {location.Y.ToString(CultureInfo.InvariantCulture)}), {location.SRID}), ");
+                $"ST_SetSRID(ST_MakePoint({location.Y.ToString(CultureInfo.InvariantCulture)}, {location.X.ToString(CultureInfo.InvariantCulture)}), {location.SRID}), ");
         else
             sqlBuilder.Append("NULL, "); // Handle null location
         return sqlBuilder;
@@ -419,12 +422,14 @@ public class SeedDataGenerator
     {
         foreach (var user in _users)
         {
-            var currentLong = _graz.X + (_random.NextDouble() - 0.5) * 0.003;
-            var currentLat = _graz.Y + (_random.NextDouble() - 0.5) * 0.003;
+            // Graz Latitude and longitude coordinates are: (x)47.076668, (y)15.421371.
+
+            var currentLat = _graz.X + (_random.NextDouble() - 0.5) * 0.003;
+            var currentLong = _graz.Y + (_random.NextDouble() - 0.5) * 0.003;
             for (var i = 0; i < new Random().Next(0, 200); i++)
             {
                 (currentLong, currentLat) = GetRandomPointWithinRadius(currentLong, currentLat, 2.75);
-                var location = new Point(currentLong, currentLat) { SRID = 4326 };
+                var location = new Point(currentLat, currentLong) { SRID = 4326 };
                 var (title, description) = _todoDescription.ElementAt(_random.Next(0, _todoDescription.Count));
                 var randomUser = _users[_random.Next(0, _users.Count)];
                 while (randomUser.Id == user.Id)

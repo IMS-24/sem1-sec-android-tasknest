@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import at.avollmaier.tasknest.auth.domain.service.ExternalUserService
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
 import at.avollmaier.tasknest.todo.data.ShareTodoDto
+import at.avollmaier.tasknest.todo.data.TodoStatus
 import at.avollmaier.tasknest.todo.domain.service.TodoService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,28 +16,39 @@ class TeamViewModel(
     private val todoService: TodoService,
     private val externalUserService: ExternalUserService
 ) : ViewModel() {
-
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
+    private val _hasNextPage = MutableStateFlow(false)
+    val hasNextPage: StateFlow<Boolean> = _hasNextPage
+
+    private var pageIndex = 0
+    private val pageSize = 5
 
     init {
-        fetchTodos()
-
-    }
-
-    fun refreshTodos() {
         fetchTodos()
     }
 
     private fun fetchTodos() {
         viewModelScope.launch {
-            todoService.getNewTodos { fetchedTodos ->
-                fetchedTodos.let {
-                    _todos.value = fetchedTodos
+            todoService.getTodos(pageIndex, pageSize) { todoPages ->
+                todoPages?.let {
+                    val newTodos = it.items.filter { todo -> todo.status == TodoStatus.NEW }
+                    _todos.value += newTodos
+                    _hasNextPage.value = it.hasNextPage
                 }
             }
-
         }
+    }
+
+    fun loadMoreTodos() {
+        pageIndex++
+        fetchTodos()
+    }
+
+    fun refreshTodos() {
+        pageIndex = 0
+        _todos.value = emptyList()
+        fetchTodos()
     }
 
     fun shareTodoWithUser(selectedTodoId: UUID, userIdToShare: UUID) {

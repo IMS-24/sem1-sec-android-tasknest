@@ -25,9 +25,7 @@ class LocationCheckWorker(
         val todoService = TodoService(applicationContext)
 
 
-        todoService.getNewTodos { result ->
-
-
+        todoService.getNewTodos(0, Int.MAX_VALUE) { result ->
             result.forEach { todo ->
                 val todoLocation = todo.location
                 if (isWithinRange(

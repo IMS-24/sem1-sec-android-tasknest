@@ -61,6 +61,7 @@ fun TeamScreen(
     val todos by teamViewModel.todos.collectAsState()
     val coroutineScope = CoroutineScope(Dispatchers.IO)
     var isRefreshing by remember { mutableStateOf(false) }
+    val hasNextPage by teamViewModel.hasNextPage.collectAsState()
 
     TaskNestTheme {
         PullToRefreshBox(
@@ -84,7 +85,7 @@ fun TeamScreen(
                             .align(Alignment.Center)
                     ) {
 
-                        TeamTodos(todos, teamViewModel)
+                        TeamTodos(todos, teamViewModel, hasNextPage)
                     }
                 }
             }
@@ -94,11 +95,11 @@ fun TeamScreen(
     }
 }
 
-
 @Composable
 fun TeamTodos(
     todos: List<FetchTodoDto>,
-    teamViewModel: TeamViewModel
+    teamViewModel: TeamViewModel,
+    hasNextPage: Boolean
 ) {
     Text(
         text = "Team Todo's",
@@ -109,12 +110,23 @@ fun TeamTodos(
     Spacer(modifier = Modifier.height(8.dp))
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(todos) { todo ->
             ShareTodoCard(todo, teamViewModel)
+        }
+        item {
+            if (hasNextPage) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(onClick = { teamViewModel.loadMoreTodos() }) {
+                        Text("Load More")
+                    }
+                }
+            }
         }
     }
 }

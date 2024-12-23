@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.avollmaier.tasknest.common.ManifestUtils
+import at.avollmaier.tasknest.BuildConfig
 import at.avollmaier.tasknest.todo.data.AttachmentDto
 import at.avollmaier.tasknest.todo.data.CreateTodoDto
 import at.avollmaier.tasknest.todo.data.FetchTodoDto
@@ -22,13 +22,16 @@ import java.util.UUID
 class OverviewViewModel(private val todoService: TodoService, context: Context) : ViewModel() {
     private val _todos = MutableStateFlow<List<FetchTodoDto>>(emptyList())
     val todos: StateFlow<List<FetchTodoDto>> = _todos
-    private lateinit var placesClient: PlacesClient
+    private val _hasNextPage = MutableStateFlow(false)
+    val hasNextPage: StateFlow<Boolean> = _hasNextPage
+
+    private var placesClient: PlacesClient
+    private var pageIndex = 0
+    private val pageSize = 5
 
     init {
-        val apiKey = ManifestUtils.getApiKeyFromManifest(context)
-
         if (!Places.isInitialized()) {
-            apiKey?.let { key -> Places.initialize(context, key) }
+            Places.initialize(context, BuildConfig.GMP_KEY)
         }
         placesClient = Places.createClient(context)
         fetchTodos()
@@ -40,17 +43,14 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
 
     private fun fetchTodos() {
         viewModelScope.launch {
-            todoService.getNewTodos { fetchedTodos ->
-                fetchedTodos.let {
-                    _todos.value = fetchedTodos
+            todoService.getTodos(pageIndex, pageSize) { todoPages ->
+                todoPages?.let {
+                    val newTodos = it.items.filter { todo -> todo.status == TodoStatus.NEW }
+                    _todos.value += newTodos
+                    _hasNextPage.value = it.hasNextPage
                 }
-
             }
         }
-    }
-
-    fun refreshTodos() {
-        fetchTodos()
     }
 
     fun addTodo(
@@ -74,6 +74,8 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
                     attachments = handleFilePickerResult(context, id, attachments)
                 )
             ) {
+                pageIndex = 0
+                _todos.value = emptyList()
                 fetchTodos()
             }
         }
@@ -84,6 +86,8 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
             val todoToUpdate = _todos.value.find { it.id == todo.id }
             todoToUpdate?.let {
                 todoService.finishTodo(it.id) {
+                    pageIndex = 0
+                    _todos.value = emptyList()
                     fetchTodos()
                 }
             }
@@ -108,5 +112,16 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
                 todoId = uuid,
             )
         }
+    }
+
+    fun loadMoreTodos() {
+        pageIndex++
+        fetchTodos()
+    }
+
+    fun refreshTodos() {
+        pageIndex = 0
+        _todos.value = emptyList()
+        fetchTodos()
     }
 }
