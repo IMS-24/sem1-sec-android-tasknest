@@ -93,6 +93,9 @@ dependencies {
     implementation(libs.androidx.work.rxjava2)
     implementation(libs.androidx.work.gcm)
     implementation(libs.play.services.location)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences.rxjava2)
+    implementation(libs.androidx.datastore.preferences.rxjava3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
