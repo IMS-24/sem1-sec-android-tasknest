@@ -15,4 +15,6 @@ public class User
     public ICollection<TodoShare> ReceivedShares { get; set; } = new HashSet<TodoShare>();
     public ICollection<Todo> AssignedTodos { get; set; } = new HashSet<Todo>();
     public ICollection<Attachment> UploadedAttachments { get; set; } = new HashSet<Attachment>();
+    public ICollection<Contact> Contacts { get; set; } = new HashSet<Contact>();
+    public ICollection<UserPort> PortMappings { get; set; } = new HashSet<UserPort>();
 }

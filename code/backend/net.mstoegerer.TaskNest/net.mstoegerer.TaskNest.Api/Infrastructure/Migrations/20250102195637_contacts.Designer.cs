@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using net.mstoegerer.TaskNest.Api.Infrastructure.Context;
 namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250102195637_contacts")]
+    partial class contacts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -399,35 +402,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                     b.ToTable("user_metadata", (string)null);
                 });
 
-            modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.UserPort", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<int>("Port")
-                        .HasColumnType("integer")
-                        .HasColumnName("port");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_port");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_port_user_id");
-
-                    b.ToTable("user_port", (string)null);
-                });
-
             modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.Attachment", b =>
                 {
                     b.HasOne("net.mstoegerer.TaskNest.Api.Domain.Entities.Todo", "Todo")
@@ -534,16 +508,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.UserPort", b =>
-                {
-                    b.HasOne("net.mstoegerer.TaskNest.Api.Domain.Entities.User", null)
-                        .WithMany("PortMappings")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_port_user_user_id");
-                });
-
             modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.Todo", b =>
                 {
                     b.Navigation("Attachments");
@@ -558,8 +522,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                     b.Navigation("Contacts");
 
                     b.Navigation("MetaDataAssociation");
-
-                    b.Navigation("PortMappings");
 
                     b.Navigation("ProvidedShares");
 

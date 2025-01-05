@@ -11,6 +11,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbConte
     public DbSet<User> Users { get; set; }
     public DbSet<Attachment> Attachments { get; set; }
     public DbSet<UserMetaData> UserMetaData { get; set; }
+    public DbSet<MetaData> MetaData { get; set; }
+    public DbSet<Contact> Contacts { get; set; }
+
+    public DbSet<UserPort> UserPorts { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
