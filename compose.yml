@@ -5,7 +5,7 @@ services:
       - "6666:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings:DefaultConnection=Server=db;Port=5432;Database=tasknest;User Id=tasknest_db_admin;Password=v2BNKVu4nFjLjPhBLEYujtME6NGg2gH7cXwN3W4tXsfVXxtddxSN
+      - ConnectionStrings_DefaultConnection=Server=db;Port=5432;Database=tasknest;User Id=tasknest_db_admin;Password=v2BNKVu4nFjLjPhBLEYujtME6NGg2gH7cXwN3W4tXsfVXxtddxSN
     depends_on:
       - db
 
@@ -30,21 +30,21 @@ services:
     depends_on:
       - db
 
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_POLL_INTERVAL=30
-      - WATCHTOWER_INCLUDE_STOPPED=true
-      - WATCHTOWER_MONITOR_ONLY_THIS_CONTAINER
-      - REGISTRY_USERNAME=${REGISTRY_USERNAME}
-      - REGISTRY_PASSWORD=${REGISTRY_PASSWORD}
-    depends_on:
-      - backend
+#  watchtower:
+#    image: containrrr/watchtower
+#    container_name: watchtower
+#    restart: always
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    environment:
+#      - WATCHTOWER_CLEANUP=true
+#      - WATCHTOWER_POLL_INTERVAL=30
+#      - WATCHTOWER_INCLUDE_STOPPED=true
+#      - WATCHTOWER_MONITOR_ONLY_THIS_CONTAINER
+#      - REGISTRY_USERNAME=${REGISTRY_USERNAME}
+#      - REGISTRY_PASSWORD=${REGISTRY_PASSWORD}
+#    depends_on:
+#      - backend
 
 volumes:
   postgis_data:
