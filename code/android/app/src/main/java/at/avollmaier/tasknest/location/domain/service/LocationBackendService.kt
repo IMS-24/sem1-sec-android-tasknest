@@ -25,12 +25,10 @@ import java.time.ZonedDateTime
 import java.util.Locale
 import java.util.TimeZone
 
-
-class LocationBackendService(context: Context) {
+class LocationBackendService(private val context: Context) {
     private val locationDao = LocationDatabase.getDatabase(context).locationDao()
     private val ioScope = CoroutineScope(Dispatchers.IO)
-
-    private val context: Context = context.applicationContext
+    
     private val api: ILocationBackendService =
         NetworkUtils.provideRetrofit(context).create(ILocationBackendService::class.java)
 
