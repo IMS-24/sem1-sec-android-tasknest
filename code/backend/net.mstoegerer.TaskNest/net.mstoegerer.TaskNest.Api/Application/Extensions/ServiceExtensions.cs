@@ -9,6 +9,8 @@ public static class ServiceExtensions
         services.AddScoped<TodoService>();
         services.AddScoped<UserService>();
         services.AddScoped<EvilService>();
+        services.AddScoped<AttachmentService>();
+        services.AddScoped<ContactService>();
         return services;
     }
 }

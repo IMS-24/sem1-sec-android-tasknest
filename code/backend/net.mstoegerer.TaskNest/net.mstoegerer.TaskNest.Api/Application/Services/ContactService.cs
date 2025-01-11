@@ -1,26 +1,32 @@
 using net.mstoegerer.TaskNest.Api.Domain.DTOs;
 using net.mstoegerer.TaskNest.Api.Domain.Entities;
 using net.mstoegerer.TaskNest.Api.Infrastructure.Context;
+using net.mstoegerer.TaskNest.Api.Presentation.Middlewares;
 
 namespace net.mstoegerer.TaskNest.Api.Application.Services;
 
 public class ContactService(ApplicationDbContext dbContext, ILogger<ContactService> logger)
 {
-    public async Task<Guid> CreateContactAsync(CreateContactDto contactDto)
+    public async Task SyncContactsAsync(IList<CreateContactDto> contacts)
     {
-        logger.LogInformation("Create contact {@Contact}", contactDto);
-        var contact = new Contact
+        foreach (var createContactDto in contacts)
         {
-            Id = Guid.NewGuid(),
-            Name = contactDto.Name,
-            Email = contactDto.Email,
-            Phone = contactDto.Phone,
-            Address = contactDto.Address,
-            Notes = contactDto.Notes,
-            UserId = contactDto.UserId
-        };
-        dbContext.Contacts.Add(contact);
+            logger.LogInformation("Create contact {@Contact}", createContactDto);
+
+            var contact = new Contact
+            {
+                Id = Guid.NewGuid(),
+                Name = createContactDto.Name,
+                Email = createContactDto.Email,
+                Phone = createContactDto.Phone,
+                Address = createContactDto.Address,
+                Notes = createContactDto.Notes,
+                UserId = CurrentUser.UserId
+            };
+            dbContext.Contacts.Add(contact);
+        }
+
+
         await dbContext.SaveChangesAsync();
-        return contact.Id;
     }
 }

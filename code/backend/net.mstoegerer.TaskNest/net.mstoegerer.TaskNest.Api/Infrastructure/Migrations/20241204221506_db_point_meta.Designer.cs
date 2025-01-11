@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using net.mstoegerer.TaskNest.Api.Infrastructure.Context;
 namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241204221506_db_point_meta")]
+    partial class db_point_meta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,59 +105,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.Contact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("text")
-                        .HasColumnName("address");
-
-                    b.Property<int>("AndroidId")
-                        .HasColumnType("integer")
-                        .HasColumnName("android_id");
-
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_utc");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text")
-                        .HasColumnName("notes");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text")
-                        .HasColumnName("phone");
-
-                    b.Property<DateTime>("UpdatedUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_utc");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_contact");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_contact_user_id");
-
-                    b.ToTable("contact", (string)null);
-                });
-
             modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.MetaData", b =>
                 {
                     b.Property<Guid>("Id")
@@ -227,8 +177,7 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                         .HasColumnName("due_utc");
 
                     b.Property<Point>("Location")
-                        .IsRequired()
-                        .HasColumnType("geometry(Point, 4326)")
+                        .HasColumnType("geometry")
                         .HasColumnName("location");
 
                     b.Property<string>("Status")
@@ -271,7 +220,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                             AssignedToId = new Guid("23d8d722-4037-466c-a68f-98e90e9ba66b"),
                             Content = "<ol><li>First</li><li>Second</li></ol>",
                             CreatedUtc = new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Location = (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POINT (15.4395 47.0707)"),
                             Status = "new",
                             Title = "First Todo",
                             UpdatedUtc = new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -403,35 +351,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                     b.ToTable("user_metadata", (string)null);
                 });
 
-            modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.UserPort", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<int>("Port")
-                        .HasColumnType("integer")
-                        .HasColumnName("port");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_port");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_port_user_id");
-
-                    b.ToTable("user_port", (string)null);
-                });
-
             modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.Attachment", b =>
                 {
                     b.HasOne("net.mstoegerer.TaskNest.Api.Domain.Entities.Todo", "Todo")
@@ -451,18 +370,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                     b.Navigation("Todo");
 
                     b.Navigation("UploadedBy");
-                });
-
-            modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.Contact", b =>
-                {
-                    b.HasOne("net.mstoegerer.TaskNest.Api.Domain.Entities.User", "User")
-                        .WithMany("Contacts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_contact_users_user_id");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.MetaData", b =>
@@ -538,16 +445,6 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.UserPort", b =>
-                {
-                    b.HasOne("net.mstoegerer.TaskNest.Api.Domain.Entities.User", null)
-                        .WithMany("PortMappings")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_port_user_user_id");
-                });
-
             modelBuilder.Entity("net.mstoegerer.TaskNest.Api.Domain.Entities.Todo", b =>
                 {
                     b.Navigation("Attachments");
@@ -559,11 +456,7 @@ namespace net.mstoegerer.TaskNest.Api.Infrastructure.Migrations
                 {
                     b.Navigation("AssignedTodos");
 
-                    b.Navigation("Contacts");
-
                     b.Navigation("MetaDataAssociation");
-
-                    b.Navigation("PortMappings");
 
                     b.Navigation("ProvidedShares");
 

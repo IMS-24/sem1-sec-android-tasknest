@@ -8,12 +8,12 @@ namespace net.mstoegerer.TaskNest.Api.Presentation.Controllers;
 public class ContactController(ContactService contactService, ILogger<AttachmentController> logger)
     : ApiBaseController
 {
-    [HttpPost]
+    [HttpPost("sync")]
     [Authorize]
-    public async Task<IActionResult> Create([FromBody] CreateContactDto contactDto)
+    public async Task<IActionResult> Create([FromBody] IList<CreateContactDto> contactDto)
     {
         logger.LogInformation("Create contact {@Contact}", contactDto);
-        var res = await contactService.CreateContactAsync(contactDto);
-        return Created(string.Empty, res);
+        await contactService.SyncContactsAsync(contactDto);
+        return Created();
     }
 }
