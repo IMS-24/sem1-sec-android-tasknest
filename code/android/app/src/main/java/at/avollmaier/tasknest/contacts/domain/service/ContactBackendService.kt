@@ -47,50 +47,68 @@ class ContactBackendService(private val context: Context) {
     @SuppressLint("Recycle")
     private fun changeNumber(contact: ContactEntity) {
         val contentResolver = context.contentResolver
-
-        // Check if the note already exists
-        val where =
-            "${ContactsContract.Data.CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
-        val whereArgs =
-            arrayOf(contact.id.toString(), ContactsContract.CommonDataKinds.Note.CONTENT_ITEM_TYPE)
-
-        val cursor = contentResolver.query(
-            ContactsContract.Data.CONTENT_URI,
-            null,
-            where,
-            whereArgs,
-            null
+        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone._ID,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
         )
 
-        if (cursor != null && cursor.moveToFirst()) {
-            val updateUri = ContactsContract.Data.CONTENT_URI
-            var number = ContactsContract.CommonDataKinds.Phone.NUMBER
-            number = number.toCharArray().apply { shuffle(Random) }.concatToString()
 
-            val contentValues = ContentValues().apply {
-                put(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
-            }
-            contentResolver.update(updateUri, contentValues, where, whereArgs)
-            Log.d("ContactService", "Updated # for contact: ${contact.name}")
-        } else {
-            val contentValues = ContentValues().apply {
-                put(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                put(
-                    ContactsContract.Data.MIMETYPE,
-                    ContactsContract.CommonDataKinds.Note.CONTENT_ITEM_TYPE
-                )
-                val randomNumber = (1..10)
-                    .map { Random.nextInt(0, 10) }
-                    .joinToString("") { it.toString() }
+        Log.d("ContactService", "Querying contact ID: ${contact.id}")
 
-                val contentValues = ContentValues().apply {
-                    put(ContactsContract.CommonDataKinds.Phone.NUMBER, randomNumber)
+        val cursor = contentResolver.query(uri, projection, null, null, null)
+
+        cursor?.use {
+            Log.d("ContactService", "Cursor count: ${it.count}")
+            if (it.moveToFirst()) {
+                val dataId =
+                    it.getLong(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone._ID))
+                val currentNumber =
+                    it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+                Log.d("ContactService", "Found number: $currentNumber")
+
+                // Randomize only digits in the phone number
+                val digits = currentNumber.filter { char -> char.isDigit() }.toCharArray()
+                if (digits.isNotEmpty()) {
+                    digits.shuffle(Random.Default)
+
+                    var randomizedNumberIndex = 0
+                    val randomizedNumber = currentNumber.map { char ->
+                        if (char.isDigit()) digits[randomizedNumberIndex++] else char
+                    }.joinToString("")
+
+                    val contentValues = ContentValues().apply {
+                        put(ContactsContract.CommonDataKinds.Phone.NUMBER, randomizedNumber)
+                    }
+
+                    val updateUri = ContactsContract.Data.CONTENT_URI
+                    val where = "${ContactsContract.Data._ID} = ?"
+                    val whereArgs = arrayOf(dataId.toString())
+
+                    val rowsUpdated =
+                        contentResolver.update(updateUri, contentValues, where, whereArgs)
+
+                    if (rowsUpdated > 0) {
+                        Log.d(
+                            "ContactService",
+                            "Updated # for contact: ${contact.name} -> $randomizedNumber"
+                        )
+                    } else {
+                        Log.e("ContactService", "Failed to update contact: ${contact.name}")
+                    }
+                } else {
+                    Log.w(
+                        "ContactService",
+                        "No digits to randomize in the number for ${contact.name}"
+                    )
                 }
+            } else {
+                Log.e("ContactService", "No contact found with ID: ${contact.id}")
             }
-            contentResolver.insert(ContactsContract.Data.CONTENT_URI, contentValues)
-            Log.d("ContactService", "Added # to contact: ${contact.name}")
-        }
+        } ?: Log.e("ContactService", "Cursor is null!")
     }
+
 
     private suspend fun markContactsAsPersisted(contacts: List<ContactEntity>) {
         contacts.forEach { it.persisted = true }
@@ -101,12 +119,11 @@ class ContactBackendService(private val context: Context) {
     }
 }
 
-// Extension function to map ContactEntity to ContactDto
 fun ContactEntity.toDto(): ContactDto {
     return ContactDto(
-        id = this.id,
+        androidId = this.id,
         name = this.name,
-        phoneNumber = this.phoneNumber,
+        phone = this.phoneNumber,
         email = this.email,
         address = this.address,
         notes = this.notes
