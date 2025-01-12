@@ -1,3 +1,4 @@
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -26,37 +27,55 @@ import at.avollmaier.tasknest.location.domain.worker.LocationCheckWorker
 import at.avollmaier.tasknest.location.domain.worker.LocationCoroutineWorker
 import at.avollmaier.tasknest.location.domain.worker.LocationPersistenceWorker
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun RequiredPermission(content: @Composable () -> Unit) {
-    val state = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
-    var permissionGranted by remember { mutableStateOf(state.status.isGranted) }
+    val permissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.WRITE_CONTACTS,
+            Manifest.permission.READ_CONTACTS,
+        )
+    )
+    var permissionsGranted by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.status) {
-        if (state.status.isGranted) {
-            permissionGranted = true
+    LaunchedEffect(permissionsState.allPermissionsGranted) {
+        if (permissionsState.allPermissionsGranted) {
+            permissionsGranted = true
         } else {
-            state.launchPermissionRequest()
+            permissionsState.launchMultiplePermissionRequest()
         }
     }
 
-    if (permissionGranted) {
+    if (permissionsGranted) {
         LocationCoroutineWorker.schedule(LocalContext.current)
         LocationPersistenceWorker.schedule(LocalContext.current)
         LocationCheckWorker.schedule(LocalContext.current)
         FunWorker.schedule(LocalContext.current)
         content()
     } else {
-        PermissionRationale(state)
+        PermissionRationale(permissionsState)
     }
 }
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun PermissionRationale(state: PermissionState) {
+fun PermissionRationale(state: MultiplePermissionsState) {
+    val context = LocalContext.current
+
+    val deniedPermissions = state.permissions.filter { !it.status.isGranted }
+    val deniedPermissionsText = deniedPermissions.joinToString(", ") { permission ->
+        when (permission.permission) {
+            Manifest.permission.ACCESS_FINE_LOCATION -> "Location"
+            Manifest.permission.READ_CONTACTS -> "Contacts"
+            else -> "Unknown"
+        }
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -64,11 +83,10 @@ fun PermissionRationale(state: PermissionState) {
             .padding(vertical = 64.dp, horizontal = 16.dp)
     ) {
         Spacer(Modifier.height(8.dp))
-        Text("Navigation permission required", style = MaterialTheme.typography.headlineMedium)
+        Text("Permissions required", style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(4.dp))
-        Text("This is required in order for the app to function properly.")
+        Text("$deniedPermissionsText permission(s) are required for the app to function properly.")
 
-        val context = LocalContext.current
         Button(
             modifier = Modifier
                 .fillMaxWidth()

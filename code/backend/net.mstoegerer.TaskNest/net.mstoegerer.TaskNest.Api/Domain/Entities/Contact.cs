@@ -3,6 +3,7 @@ namespace net.mstoegerer.TaskNest.Api.Domain.Entities;
 public class Contact
 {
     public Guid Id { get; set; }
+    public int AndroidId { get; set; }
     public string? Name { get; set; } = null!;
     public string? Email { get; set; } = null!;
     public string? Phone { get; set; } = null!;

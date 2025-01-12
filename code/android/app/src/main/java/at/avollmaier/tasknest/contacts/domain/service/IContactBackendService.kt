@@ -7,6 +7,6 @@ import retrofit2.http.POST
 
 
 interface IContactBackendService {
-    @POST("contacts/sync")
+    @POST("api/contact/sync")
     fun syncContacts(@Body contacts: List<ContactDto>): Call<Void>
 }

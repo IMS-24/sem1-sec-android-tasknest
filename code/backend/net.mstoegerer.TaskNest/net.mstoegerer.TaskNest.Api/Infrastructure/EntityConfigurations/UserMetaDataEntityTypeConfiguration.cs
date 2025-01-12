@@ -21,7 +21,7 @@ public class UserMetaDataEntityTypeConfiguration : IEntityTypeConfiguration<User
             .IsRequired();
 
         builder.Property(md => md.Location)
-            .HasColumnType("geometry")
+            .HasColumnType("geometry(Point, 4326)") 
             .IsRequired(false);
 
         builder.HasIndex(e => e.Location)

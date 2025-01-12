@@ -8,5 +8,4 @@ public class CreateContactDto
     public string Phone { get; set; } = null!;
     public string Address { get; set; } = null!;
     public string Notes { get; set; } = null!;
-    public Guid UserId { get; set; }
 }

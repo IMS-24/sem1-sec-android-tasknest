@@ -27,8 +27,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val contactService = ContactDatabaseService(this)
-        contactService.fetchAndStoreContacts()
+
         enableEdgeToEdge()
         authProvider.setUp(this)
         setContent {
@@ -41,6 +40,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
     }
 
     @Composable
@@ -54,11 +54,14 @@ class MainActivity : ComponentActivity() {
             RequiredPermission(content = {
                 BottomNavigationBar(authProvider, mainViewModel.getUser())
             })
+            val contactService = ContactDatabaseService(this)
+            contactService.fetchAndStoreContacts()
         } else {
             mainViewModel.loginUser(
                 context = this,
                 authProvider = authProvider
             )
         }
+
     }
 }

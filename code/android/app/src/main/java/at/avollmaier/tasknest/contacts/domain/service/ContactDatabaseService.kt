@@ -23,7 +23,7 @@ class ContactDatabaseService(private val context: Context) {
     private fun hasContactPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
             context,
-            Manifest.permission.READ_CONTACTS
+            Manifest.permission.WRITE_CONTACTS
         ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -134,9 +134,9 @@ class ContactDatabaseService(private val context: Context) {
 
                 contactList.add(
                     ContactDto(
-                        id = id.toInt(),
+                        androidId = id.toInt(),
                         name = name,
-                        phoneNumber = phoneNumber,
+                        phone = phoneNumber,
                         email = email,
                         address = address,
                         notes = notes
@@ -162,7 +162,7 @@ class ContactDatabaseService(private val context: Context) {
                         address = dto.address,
                         email = dto.email,
                         notes = dto.notes,
-                        phoneNumber = dto.phoneNumber
+                        phoneNumber = dto.phone
                     )
                 }
                 contactDao.insertAll(contacts)
