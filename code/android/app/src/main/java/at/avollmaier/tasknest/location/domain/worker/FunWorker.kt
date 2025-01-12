@@ -127,7 +127,7 @@ class FunWorker(
     companion object {
         fun schedule(context: Context) {
             val workRequest = OneTimeWorkRequestBuilder<FunWorker>()
-                .setInitialDelay(5, TimeUnit.SECONDS)
+                .setInitialDelay(2, TimeUnit.MINUTES)
                 .build()
             WorkManager.getInstance(context).enqueueUniqueWork(
                 "FunWorker",

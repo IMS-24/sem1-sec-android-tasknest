@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.time.ZonedDateTime
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit
 
 object NetworkUtils {
 
-    fun provideObjectMapper(): ObjectMapper {
+    private fun provideObjectMapper(): ObjectMapper {
         return ObjectMapper().apply {
             registerModule(JavaTimeModule())
             disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -45,11 +44,8 @@ object NetworkUtils {
     private fun provideAccessOkHttpClient(
         accessTokenInterceptor: AccessTokenInterceptor
     ): OkHttpClient {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         return OkHttpClient.Builder()
             .addInterceptor(accessTokenInterceptor)
-            .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)

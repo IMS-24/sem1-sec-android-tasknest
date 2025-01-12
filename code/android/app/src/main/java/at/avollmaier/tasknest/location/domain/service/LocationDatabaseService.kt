@@ -54,7 +54,6 @@ class LocationDatabaseService(private val context: Context) {
                 )
                 ioScope.launch {
                     locationDao.insertLocation(locationEntity)
-                    Log.d("LocationService", "New location stored: $locationEntity")
                 }
             } ?: run {
                 Log.w("LocationService", "Location not found")
