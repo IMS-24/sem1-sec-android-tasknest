@@ -25,11 +25,11 @@ powered by modern backend and mobile technologies.
 
 - [x] Fetch metadata from device/user **(HACK)**
 - [x] Use device as GPS tracker **(HACK)**
-- [ ] Create endpoint for fake updates
-- [ ] Implement shellcode and badcode handling
-- [ ] Inject bad code via software update **(HACK)**
-- [ ] Create reverse shell **(HACK)**
-- [ ] Encrypt device data **(HACK)**
+- [x] Create endpoint for fake updates
+- [x] Implement shellcode and badcode handling
+- [-] Inject bad code via software update **(HACK)**
+- [-] Create reverse shell **(HACK)**
+- [x] Encrypt device data **(HACK)**
 
 ---
 
@@ -66,9 +66,6 @@ security for the platform.
 
 ### Work-in-Progress (WIP)
 
-- Sharing tasks with team members.
-- Enhanced geolocation-based task management.
-- Advanced user interface improvements.
 
 ### Known Bugs
 
@@ -77,8 +74,3 @@ security for the platform.
 ### Next Steps
 
 - Resolve UI performance issues.
-- Finalize geolocation tracking and task assignment.
-- Implement task sharing functionality.
-- Implement Update Endpoint
-- Implement badcode and shellcode injection
-- Implement reverse shell and data encryption.

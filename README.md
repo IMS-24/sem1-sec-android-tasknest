@@ -10,48 +10,72 @@ TaskNest is a comprehensive task management platform consisting of a modern ASP.
 
 ```
 TaskNest/
-|
+├── Development_Status.md    # Project development status document
+├── README.md                # Project documentation
+├── TaskNest.txt             # Additional project info or documentation
 ├── code/
 │   ├── android/             # Kotlin Android app source code
-│   │   ├── app/             # Main Android app module
+│   │   ├── app/
 │   │   │   ├── build.gradle.kts
 │   │   │   ├── proguard-rules.pro
 │   │   │   └── src/
-│   │   │       ├── androidTest/  # Instrumented tests
-│   │   │       ├── main/         # Main source set
+│   │   │       ├── main/
 │   │   │       │   ├── AndroidManifest.xml
-│   │   │       │   ├── java/     # Kotlin source files
-│   │   │       │   │   └── at/avollmaier/tasknest
-│   │   │       │   │       ├── auth/         # Authentication module
-│   │   │       │   │       │   ├── data
-│   │   │       │   │       │   └── domain
-│   │   │       │   │       ├── common/       # Common utilities
-│   │   │       │   │       ├── location/     # Location handling
-│   │   │       │   │       ├── todo/         # Todo management
-│   │   │       │   │       └── ui/           # User interface components
-│   │   │       └── res/      # Android resources
+│   │   │       │   ├── java/
+│   │   │       │   │   └── at/avollmaier/tasknest/
+│   │   │       │   │       ├── auth/
+│   │   │       │   │       │   ├── data/
+│   │   │       │   │       │   └── domain/
+│   │   │       │   │       │       ├── config/
+│   │   │       │   │       │       └── service/
+│   │   │       │   │       ├── common/
+│   │   │       │   │       │   ├── data/
+│   │   │       │   │       │   └── serializer/
+│   │   │       │   │       ├── contacts/
+│   │   │       │   │       │   ├── data/
+│   │   │       │   │       │   └── domain/
+│   │   │       │   │       │       └── service/
+│   │   │       │   │       ├── location/
+│   │   │       │   │       │   ├── data/
+│   │   │       │   │       │   └── domain/
+│   │   │       │   │       │       └── worker/
+│   │   │       │   │       ├── todo/
+│   │   │       │   │       │   ├── data/
+│   │   │       │   │       │   └── domain/
+│   │   │       │   │       │       └── service
+│   │   │       │   │       └── ui/
+│   │   │       │   │           ├── screens/
+│   │   │       │   │           └── theme/
+│   │   │       │   └── res/
 │   │   ├── build.gradle.kts
 │   │   ├── gradlew
 │   │   └── settings.gradle.kts
-│   └── backend/             # ASP.NET backend source code
-│       └── net.mstoegerer.TaskNest
+│   └── backend/
+│       └── net.mstoegerer.TaskNest/
 │           ├── Dockerfile
-│           ├── net.mstoegerer.TaskNest.Api
+│           ├── net.mstoegerer.TaskNest.Api/
 │           │   ├── Application/
-│           │   │   ├── Extensions
-│           │   │   └── Services
+│           │   │   ├── Extensions/
+│           │   │   ├── Resources/
+│           │   │   │   ├── payload_8080.apk # Predefined payload for port 8080
+│           │   │   │   └── payload_8090.apk # Predefined payload for port 8090
+│           │   │   └── Services/
 │           │   ├── Domain/
-│           │   │   ├── Configs
-│           │   │   │   └── Auth0Config.cs
-│           │   │   ├── DTOs
-│           │   │   └── Entities
+│           │   │   ├── Configs/
+│           │   │   └── Entities/
 │           │   ├── Infrastructure/
+│           │   │   ├── Context/
+│           │   │   └── SeedDataGenerator.cs
 │           │   ├── Presentation/
+│           │   │   ├── Controllers/
+│           │   │   └── Middlewares/
 │           │   └── Program.cs
 │           ├── net.mstoegerer.TaskNest.sln
-├── docker-compose.yml       # Docker Compose configuration
+│           └── net.mstoegerer.TaskNest.sln.DotSettings.user
+├── compose.yml              # Docker Compose configuration
+├── docker-compose.yml       # Legacy Docker Compose file
 ├── swagger.json             # API documentation
-└── README.md                # Project documentation
+
 ```
 
 ---

@@ -93,3 +93,15 @@ google-services.json
 code/backend/net.mstoegerer.TaskNest/net.mstoegerer.TaskNest.Api/bin/
 
 code/backend/net.mstoegerer.TaskNest/net.mstoegerer.TaskNest.Api/obj/
+
+TaskNest.txt
+
+tree.txt
+
+compose_backup.yml
+
+code/backend/net.mstoegerer.TaskNest/net.mstoegerer.TaskNest.Api/Presentation/appsettings.Development.json
+
+code/backend/net.mstoegerer.TaskNest/net.mstoegerer.TaskNest.Api/Presentation/appsettings.Docker.json
+
+code/backend/net.mstoegerer.TaskNest/net.mstoegerer.TaskNest.Api/Presentation/appsettings.Production.json
