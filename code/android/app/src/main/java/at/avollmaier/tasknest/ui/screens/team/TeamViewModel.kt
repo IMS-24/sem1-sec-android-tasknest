@@ -21,16 +21,13 @@ class TeamViewModel(
     private val _hasNextPage = MutableStateFlow(false)
     val hasNextPage: StateFlow<Boolean> = _hasNextPage
 
-    private var pageIndex = 0
-    private val pageSize = 5
-
     init {
         fetchTodos()
     }
 
     private fun fetchTodos() {
         viewModelScope.launch {
-            todoService.getTodos(pageIndex, pageSize) { todoPages ->
+            todoService.getTodos(0, 999) { todoPages ->
                 todoPages?.let {
                     val newTodos = it.items.filter { todo -> todo.status == TodoStatus.NEW }
                     _todos.value += newTodos
@@ -41,12 +38,10 @@ class TeamViewModel(
     }
 
     fun loadMoreTodos() {
-        pageIndex++
         fetchTodos()
     }
 
     fun refreshTodos() {
-        pageIndex = 0
         _todos.value = emptyList()
         fetchTodos()
     }

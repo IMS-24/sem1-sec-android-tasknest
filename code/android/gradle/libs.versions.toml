@@ -4,6 +4,7 @@ agp = "8.7.3"
 androidMapsUtils = "2.3.0"
 coilCompose = "2.0.0-rc01"
 datastorePreferencesCore = "1.1.1"
+dexmaker = "2.28.4"
 jacksonDatatypeJsr310 = "2.18.2"
 jacksonModuleKotlin = "2.18.2"
 kotlin = "2.0.21"
@@ -36,6 +37,7 @@ androidx-datastore-preferences-rxjava2 = { module = "androidx.datastore:datastor
 androidx-datastore-preferences-rxjava3 = { module = "androidx.datastore:datastore-preferences-rxjava3", version.ref = "datastorePreferencesCore" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+dexmaker = { module = "com.linkedin.dexmaker:dexmaker", version.ref = "dexmaker" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jacksonModuleKotlin" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jacksonDatatypeJsr310" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

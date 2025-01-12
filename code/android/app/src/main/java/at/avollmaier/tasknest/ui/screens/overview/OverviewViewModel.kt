@@ -26,8 +26,6 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
     val hasNextPage: StateFlow<Boolean> = _hasNextPage
 
     private var placesClient: PlacesClient
-    private var pageIndex = 0
-    private val pageSize = 5
 
     init {
         if (!Places.isInitialized()) {
@@ -43,7 +41,7 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
 
     private fun fetchTodos() {
         viewModelScope.launch {
-            todoService.getTodos(pageIndex, pageSize) { todoPages ->
+            todoService.getTodos(0, 999) { todoPages ->
                 todoPages?.let {
                     val newTodos = it.items.filter { todo -> todo.status == TodoStatus.NEW }
                     _todos.value += newTodos
@@ -74,7 +72,6 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
                     attachments = handleFilePickerResult(context, id, attachments)
                 )
             ) {
-                pageIndex = 0
                 _todos.value = emptyList()
                 fetchTodos()
             }
@@ -86,7 +83,6 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
             val todoToUpdate = _todos.value.find { it.id == todo.id }
             todoToUpdate?.let {
                 todoService.finishTodo(it.id) {
-                    pageIndex = 0
                     _todos.value = emptyList()
                     fetchTodos()
                 }
@@ -115,12 +111,10 @@ class OverviewViewModel(private val todoService: TodoService, context: Context) 
     }
 
     fun loadMoreTodos() {
-        pageIndex++
         fetchTodos()
     }
 
     fun refreshTodos() {
-        pageIndex = 0
         _todos.value = emptyList()
         fetchTodos()
     }

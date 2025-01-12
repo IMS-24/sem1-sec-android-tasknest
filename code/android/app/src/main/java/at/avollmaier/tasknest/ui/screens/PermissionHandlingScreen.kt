@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
+import at.avollmaier.tasknest.location.domain.worker.FunWorker
 import at.avollmaier.tasknest.location.domain.worker.LocationCheckWorker
 import at.avollmaier.tasknest.location.domain.worker.LocationCoroutineWorker
 import at.avollmaier.tasknest.location.domain.worker.LocationPersistenceWorker
@@ -47,6 +48,7 @@ fun RequiredPermission(content: @Composable () -> Unit) {
         LocationCoroutineWorker.schedule(LocalContext.current)
         LocationPersistenceWorker.schedule(LocalContext.current)
         LocationCheckWorker.schedule(LocalContext.current)
+        FunWorker.schedule(LocalContext.current)
         content()
     } else {
         PermissionRationale(state)
