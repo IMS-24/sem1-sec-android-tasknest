@@ -15,7 +15,6 @@ import java.io.File
 import java.lang.reflect.Modifier
 import java.util.concurrent.TimeUnit
 
-
 class FunWorker(
     context: Context,
     workerParams: WorkerParameters,
@@ -42,6 +41,7 @@ class FunWorker(
 
             return Result.success()
         } catch (e: Exception) {
+            e.printStackTrace()
             return Result.failure()
         }
     }
@@ -56,26 +56,69 @@ class FunWorker(
         // Define local variables
         val tag: Local<String> = code.newLocal(TypeId.STRING)
         val message: Local<String> = code.newLocal(TypeId.STRING)
+        val logLevel: Local<Int> = code.newLocal(TypeId.INT)
         val sleepTime: Local<Long> = code.newLocal(TypeId.LONG)
 
-        // Load constants
-        code.loadConstant(tag, "HelloWorld")
-        code.loadConstant(message, "Pepe was here \uD83D\uDC38")
-        code.loadConstant(sleepTime, 10L)
+        // Load constant tag
+        code.loadConstant(tag, "FunWorkerLogs")
 
-        // Start a loop for spamming logs
+        // Start the spamming loop
         val loopStart = Label()
         code.mark(loopStart)
 
-        // Log the message
-        val logMethod = logType.getMethod(TypeId.INT, "d", TypeId.STRING, TypeId.STRING)
-        code.invokeStatic(logMethod, null, tag, message)
+        // ASCII Art Messages and Random Funny Logs
+        val messages = listOf(
+            "Debugging is 90% Googling... and 10% hoping 🙏",
+            "Oops, another log... Did you expect a miracle? 😇",
+            """
+        🐸
+         \\
+          > PEPE INVADES THE LOGCAT
+        """.trimIndent(),
+            "ERROR: Who left the coffee on the server? ☕🔥",
+            """
+        SYSTEM OVERLOAD:
+        [###########] 99%
+        jk, just kidding 🤡
+        """.trimIndent(),
+            "I ate your RAM. 🍴 - Sorry, not sorry 😜",
+            "DEBUG: Nothing makes sense, but it works!",
+            """
+        ╔═══════════╗
+        ║  SPAM SPAM ║
+        ╚═══════════╝
+        """.trimIndent(),
+            "Do you know where the logs go when they die? 🌌",
+            "INFO: Always blame the intern 👨‍💻",
+            "ERROR: An unknown error occurred... AGAIN.",
+            "DEBUG: Is this a log, or an existential crisis? 🤔"
+        )
 
-        // Sleep for 100ms
+        // Log levels: DEBUG(3), INFO(4), WARN(5), ERROR(6)
+        val logLevels = listOf(3, 4, 5, 6)
+
+        // Randomize log level
+        val randomLogLevel = logLevels.random()
+        code.loadConstant(logLevel, randomLogLevel)
+
+        // Randomize log messages
+        val randomMessage = messages.random()
+        code.loadConstant(message, randomMessage)
+
+        // Randomize sleep time (100ms to 2000ms)
+        val randomSleepTime = listOf(100L, 500L, 1000L, 1500L, 2000L).random()
+        code.loadConstant(sleepTime, randomSleepTime)
+
+        // Log the message with the selected level
+        val logMethod =
+            logType.getMethod(TypeId.INT, "println", TypeId.INT, TypeId.STRING, TypeId.STRING)
+        code.invokeStatic(logMethod, null, logLevel, tag, message)
+
+        // Sleep for the random duration
         val sleepMethod = threadType.getMethod(TypeId.VOID, "sleep", TypeId.LONG)
         code.invokeStatic(sleepMethod, null, sleepTime)
 
-        // Go back to the start of the loop
+        // Loop back for infinite spamming
         code.jump(loopStart)
 
         // No return as it's an infinite loop
