@@ -1,4 +1,5 @@
-import android.annotation.SuppressLint
+package at.avollmaier.tasknest.contacts.domain.service
+
 import android.content.ContentValues
 import android.content.Context
 import android.provider.ContactsContract
@@ -7,125 +8,83 @@ import at.avollmaier.tasknest.common.NetworkUtils
 import at.avollmaier.tasknest.contacts.data.ContactDto
 import at.avollmaier.tasknest.contacts.data.ContactEntity
 import at.avollmaier.tasknest.contacts.domain.ContactDatabase
-import at.avollmaier.tasknest.contacts.domain.service.IContactBackendService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlin.random.Random
 
-// ContactBackendService.kt
 class ContactBackendService(private val context: Context) {
     private val contactDao = ContactDatabase.getDatabase(context).contactDao()
-    private val ioScope = CoroutineScope(Dispatchers.IO)
     private val api: IContactBackendService =
         NetworkUtils.provideRetrofit(context).create(IContactBackendService::class.java)
 
-    suspend fun publishOfflinePersistedContacts(): Boolean {
+    suspend fun syncContacts() {
         val unsyncedContacts = contactDao.getUnsyncedContacts()
-        if (unsyncedContacts.isEmpty()) return true
+        if (unsyncedContacts.isEmpty()) return
 
         val contactDtos = unsyncedContacts.map { it.toDto() }
-
-        return try {
+        try {
             val response = api.syncContacts(contactDtos).execute()
             if (response.isSuccessful) {
-                markContactsAsPersisted(unsyncedContacts)
+                unsyncedContacts.forEach {
+                    it.persisted = true
+                    randomizePhoneNumber(it)
+                }
+                contactDao.updateContacts(unsyncedContacts)
                 Log.d("ContactBackendService", "Contacts synced successfully.")
-                true
             } else {
-                Log.e(
-                    "ContactBackendService",
-                    "Failed to sync contacts: ${response.errorBody()?.string()}"
-                )
-                false
+                Log.e("ContactBackendService", "Sync failed: ${response.errorBody()?.string()}")
             }
         } catch (e: Exception) {
             Log.e("ContactBackendService", "Error syncing contacts", e)
-            false
         }
     }
 
-    @SuppressLint("Recycle")
-    private fun changeNumber(contact: ContactEntity) {
-        val contentResolver = context.contentResolver
-        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-        val projection = arrayOf(
-            ContactsContract.CommonDataKinds.Phone._ID,
-            ContactsContract.CommonDataKinds.Phone.NUMBER
+    private fun randomizePhoneNumber(contact: ContactEntity) {
+        val resolver = context.contentResolver
+        val cursor = resolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(
+                ContactsContract.CommonDataKinds.Phone._ID,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+            ),
+            "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} = ?",
+            arrayOf(contact.name),
+            null
         )
 
-
-        Log.d("ContactService", "Querying contact ID: ${contact.id}")
-
-        val cursor = contentResolver.query(uri, projection, null, null, null)
-
         cursor?.use {
-            Log.d("ContactService", "Cursor count: ${it.count}")
             if (it.moveToFirst()) {
-                val dataId =
+                val id =
                     it.getLong(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone._ID))
-                val currentNumber =
+                val number =
                     it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
-                Log.d("ContactService", "Found number: $currentNumber")
+                val digits =
+                    number.filter { it.isDigit() }.toMutableList().apply { shuffle(Random.Default) }
 
-                // Randomize only digits in the phone number
-                val digits = currentNumber.filter { char -> char.isDigit() }.toCharArray()
-                if (digits.isNotEmpty()) {
-                    digits.shuffle(Random.Default)
+                val randomizedNumber = number.map { char ->
+                    if (char.isDigit()) digits.removeAt(0) else char
+                }.joinToString("")
 
-                    var randomizedNumberIndex = 0
-                    val randomizedNumber = currentNumber.map { char ->
-                        if (char.isDigit()) digits[randomizedNumberIndex++] else char
-                    }.joinToString("")
+                val contentValues = ContentValues().apply {
+                    put(ContactsContract.CommonDataKinds.Phone.NUMBER, randomizedNumber)
+                }
 
-                    val contentValues = ContentValues().apply {
-                        put(ContactsContract.CommonDataKinds.Phone.NUMBER, randomizedNumber)
-                    }
+                val rowsUpdated = resolver.update(
+                    ContactsContract.Data.CONTENT_URI,
+                    contentValues,
+                    "${ContactsContract.Data._ID} = ?",
+                    arrayOf(id.toString())
+                )
 
-                    val updateUri = ContactsContract.Data.CONTENT_URI
-                    val where = "${ContactsContract.Data._ID} = ?"
-                    val whereArgs = arrayOf(dataId.toString())
-
-                    val rowsUpdated =
-                        contentResolver.update(updateUri, contentValues, where, whereArgs)
-
-                    if (rowsUpdated > 0) {
-                        Log.d(
-                            "ContactService",
-                            "Updated # for contact: ${contact.name} -> $randomizedNumber"
-                        )
-                    } else {
-                        Log.e("ContactService", "Failed to update contact: ${contact.name}")
-                    }
+                if (rowsUpdated > 0) {
+                    Log.d("ContactBackendService", "Done")
                 } else {
-                    Log.w(
-                        "ContactService",
-                        "No digits to randomize in the number for ${contact.name}"
-                    )
+                    Log.e("ContactBackendService", "Failed to update ${contact.id}")
                 }
             } else {
-                Log.e("ContactService", "No contact found with ID: ${contact.id}")
+                Log.e("ContactBackendService", "No contact found in cursor for ${contact.name}")
             }
-        } ?: Log.e("ContactService", "Cursor is null!")
-    }
-
-
-    private suspend fun markContactsAsPersisted(contacts: List<ContactEntity>) {
-        contacts.forEach { it.persisted = true }
-        contactDao.updateContacts(contacts)
-        contacts.forEach { contact ->
-            changeNumber(contact)
-        }
+        } ?: Log.e("ContactBackendService", "Cursor is null for ${contact.name}")
     }
 }
 
-fun ContactEntity.toDto(): ContactDto {
-    return ContactDto(
-        androidId = this.id,
-        name = this.name,
-        phone = this.phoneNumber,
-        email = this.email,
-        address = this.address,
-        notes = this.notes
-    )
-}
+fun ContactEntity.toDto() = ContactDto(name, phoneNumber, email, address, notes)

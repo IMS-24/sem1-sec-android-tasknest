@@ -12,8 +12,4 @@ data class ContactEntity(
     val address: String,
     val notes: String,
     var persisted: Boolean = false
-) {
-    override fun toString(): String {
-        return "id=$id,\nname=$name,\nphoneNumber=$phoneNumber,\nemail=$email,\naddress=$address,\nnotes=$notes"
-    }
-}
+)

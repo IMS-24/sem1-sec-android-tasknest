@@ -14,18 +14,12 @@ abstract class ContactDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ContactDatabase? = null
 
-        fun getDatabase(context: Context): ContactDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    ContactDatabase::class.java,
-                    "contacts_database"
-                )
-                    .fallbackToDestructiveMigration()
-                    .build()
-                INSTANCE = instance
-                instance
-            }
+        fun getDatabase(context: Context): ContactDatabase = INSTANCE ?: synchronized(this) {
+            Room.databaseBuilder(
+                context.applicationContext,
+                ContactDatabase::class.java,
+                "contacts_database"
+            ).fallbackToDestructiveMigration().build().also { INSTANCE = it }
         }
     }
 }

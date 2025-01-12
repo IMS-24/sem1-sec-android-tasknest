@@ -62,6 +62,5 @@ class MainActivity : ComponentActivity() {
                 authProvider = authProvider
             )
         }
-
     }
 }
