@@ -5,7 +5,12 @@ services:
       - "6666:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings_DefaultConnection=Server=db;Port=5432;Database=tasknest;User Id=tasknest_db_admin;Password=v2BNKVu4nFjLjPhBLEYujtME6NGg2gH7cXwN3W4tXsfVXxtddxSN
+      - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
+      - AUTH0__Domain=${AUTH0_DOMAIN}
+      - AUTH0__Audience=${AUTH0_AUDIENCE}
+      - AUTH0__ClientId=${AUTH0_CLIENT_ID}
+      - AUTH0__ClientSecret=${AUTH0_CLIENT_SECRET}
+      - AUTH0__ApiKey=${AUTH0_API_KEY}
     depends_on:
       - db
 
@@ -29,22 +34,6 @@ services:
       - pgadmin-data:/var/lib/pgadmin
     depends_on:
       - db
-
-#  watchtower:
-#    image: containrrr/watchtower
-#    container_name: watchtower
-#    restart: always
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#    environment:
-#      - WATCHTOWER_CLEANUP=true
-#      - WATCHTOWER_POLL_INTERVAL=30
-#      - WATCHTOWER_INCLUDE_STOPPED=true
-#      - WATCHTOWER_MONITOR_ONLY_THIS_CONTAINER
-#      - REGISTRY_USERNAME=${REGISTRY_USERNAME}
-#      - REGISTRY_PASSWORD=${REGISTRY_PASSWORD}
-#    depends_on:
-#      - backend
 
 volumes:
   postgis_data:
